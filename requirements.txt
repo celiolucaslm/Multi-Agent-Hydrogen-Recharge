@@ -1,0 +1,6 @@
+numpy==1.24.4
+gym==0.10.5
+pettingzoo==1.24.3
+agilerl==0.1.20
+
+
