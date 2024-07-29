@@ -6,21 +6,21 @@ import numpy as np
 from pettingzoo import ParallelEnv
 import matplotlib.pyplot as plt
 
-# Déclaration Class Véhicule
+# Declaration Class Vehicle
 
 class Vehicle:
-    def __init__(self, name, position, hydrogen, indicateur, qualite, weights):
+    def __init__(self, name, position, hydrogen, remaining_working_time, quality_of_service, weights):
         self.name = name
         self.position = position
         self.hydrogen = hydrogen
-        self.indicateur = indicateur
-        self.qualite = qualite
+        self.remaining_working_time = remaining_working_timere
+        self.quality_of_service = quality_of_service
         self.weights = weights
         self.preference = []
         self.is_matched = False
         self.job = None
         self.index = 0
-        self.reward = 0
+        self.score = 0
 
     def propose(self):
         commande = self.preference[self.index]
@@ -30,26 +30,26 @@ class Vehicle:
     def is_available(self):
         return not self.is_matched
 
-    def update_reward(self, score):
-        self.reward = score
+    def update_score(self, new_score):
+        self.score = new_score
 
     def reset_index(self):
         self.index = 0
 
-# Déclaration Class Véhicule
+# Declaration Class Command
 
 class Command:
-    def __init__(self, name, position, prix, duration):
+    def __init__(self, name, position, price, duration):
         self.name = name
         self.position = position
-        self.prix = prix
+        self.price = price
         self.duration = duration
         self.weights = [0.25, 0.25, 0.25, 0.25]
         self.preference = []
         self.is_matched = False
         self.vehicle = None
         self.index = 0
-        self.reward = 0
+        self.score = 0
 
     def is_available(self):
         return not self.is_matched
@@ -59,104 +59,104 @@ class Command:
         self.index += 1
         return vehicule
 
-    def update_reward(self, score):
-        self.reward = score
+    def update_score(self, new_score):
+        self.score = new_score
 
     def reset_index(self):
         self.index = 0
 
 
-# Déclaration Class Assignments (Gale-Shapley)
+# Declaration Class Assignments (Gale-Shapley)
 
-class Assignments_Vehicule:
-    def __init__(self, commandes, vehicules):
+class Assignments_Vehicle:
+    def __init__(self, commands, vehicles):
         self.assignments = {}
-        self.commandes = commandes
-        self.vehicules = vehicules
+        self.commands = commands
+        self.vehicles = vehicles
         self.assignment_count = 0
 
-        for commande in commandes:
-            self.assignments[commande.name] = commande
+        for command in commands:
+            self.assignments[command.name] = command
 
-        for vehicule in vehicules:
-            self.assignments[vehicule.name] = vehicule
+        for vehicle in vehicles:
+            self.assignments[vehicle.name] = vehicle
 
-    def assign(self, vehicule_name, commande_name):
-        commande = self.assignments[commande_name]
-        vehicule = self.assignments[vehicule_name]
+    def assign(self, vehicle_name, command_name):
+        command = self.assignments[command_name]
+        vehicle = self.assignments[vehicle_name]
 
-        commande.is_matched = True
-        commande.vehicule = vehicule
+        command.is_matched = True
+        command.vehicule = vehicle
 
-        vehicule.is_matched = True
-        vehicule.job = commande
+        vehicle.is_matched = True
+        vehicle.job = command
 
         self.assignment_count += 1
 
-    def unassign(self, vehicule_name, commande_name):
-        commande = self.assignments[commande_name]
-        vehicule = self.assignments[vehicule_name]
+    def unassign(self, vehicle_name, command_name):
+        command = self.assignments[command_name]
+        vehicle = self.assignments[vehicle_name]
 
-        commande.is_matched = False
-        commande.vehicule = None
+        command.is_matched = False
+        command.vehicule = None
 
-        vehicule.is_matched = False
-        vehicule.job = None
+        vehicle.is_matched = False
+        vehicle.job = None
 
         self.assignment_count -= 1
 
     def reset(self):
-        for commande in self.commandes:
-            commande.is_matched = False
-            commande.vehicule = None
-            commande.reward = 0
-            commande.reset_index()
+        for command in self.commands:
+            command.is_matched = False
+            command.vehicule = None
+            command.reward = 0
+            command.reset_index()
 
-        for vehicule in self.vehicules:
-            vehicule.is_matched = False
-            vehicule.job = None
-            vehicule.reward = 0
-            vehicule.reset_index()
+        for vehicle in self.vehicles:
+            vehicle.is_matched = False
+            vehicle.job = None
+            vehicle.reward = 0
+            vehicle.reset_index()
 
     def match(self):
-        proposals = {commande.name: [] for commande in self.commandes}
+        proposals = {command.name: [] for command in self.commands}
 
         # Loop until all vehicles are matched
         while True:
             # Find all unmatched vehicles
-            unmatched_vehicles = [vehicule for vehicule in self.vehicules if not vehicule.is_matched]
+            unmatched_vehicles = [vehicle for vehicle in self.vehicles if not vehicle.is_matched]
             if not unmatched_vehicles:
                 break
 
-            for vehicule in unmatched_vehicles:
+            for vehicle in unmatched_vehicles:
                 # Vehicule makes a proposal to the next commande in its preference list
-                commande_name, score = vehicule.propose()
-                commande = self.assignments[commande_name]
-                commande.update_reward(score)
+                command_name, score = vehicle.propose()
+                command = self.assignments[command_name]
+                command.update_reward(score)
 
-                proposals[commande_name].append((vehicule, score))
+                proposals[command_name].append((vehicle, score))
 
             # Process proposals for each commande
-            for commande_name, proposers in proposals.items():
+            for command_name, proposers in proposals.items():
               if proposers:
                   proposers.sort(key=lambda x: x[1], reverse=True)  # Sort proposers by score
                   best_proposer, best_score = proposers[0]
-                  commande = self.assignments[commande_name]
+                  command = self.assignments[command_name]
 
-                  if commande.is_available():
-                      self.assign(best_proposer.name, commande_name)
+                  if command.is_available():
+                      self.assign(best_proposer.name, command_name)
                   else:
-                      current_vehicule = commande.vehicule
+                      current_vehicule = command.vehicule
                       current_vehicule_score = next((score for v, score in proposers if v.name == current_vehicule.name), None)
 
-                      # Verifica se current_vehicule_score é diferente de None antes de fazer a comparação
+                      # Check if current_vehicule_score is different from None before making the comparison
                       if current_vehicule_score is not None and best_score > current_vehicule_score:
-                          self.unassign(current_vehicule.name, commande_name)
-                          self.assign(best_proposer.name, commande_name)
+                          self.unassign(current_vehicule.name, command_name)
+                          self.assign(best_proposer.name, command_name)
 
 
             # Clear proposals after processing
-            proposals = {commande.name: [] for commande in self.commandes}
+            proposals = {command.name: [] for command in self.commands}
 
         return self.sets()
 
@@ -172,12 +172,12 @@ class Assignments_Vehicule:
 def calculate_distance(position1, position2):
     return math.sqrt((position1[0] - position2[0])**2 + (position1[1] - position2[1])**2)
 
-def calculate_score_vehicule(objet, poids, position):
-    score = (objet.prix * poids[0]) - (calculate_distance(objet.position, position) * poids[1]) - (objet.duration * poids[2])
+def calculate_score_vehicle(object, weights, position):
+    score = (object.price * weights[0]) - (calculate_distance(object.position, position) * weights[1]) - (object.duration * weights[2])
     return score
 
-def calculate_score_commande(objet, poids, position):
-    score = ((objet.hydrogen * poids[0]) - (calculate_distance(objet.position, position) * poids[1]) + (objet.indicateur * poids[2]) + (objet.qualite * poids[3]))
+def calculate_score_command(object, weights, position):
+    score = ((object.hydrogen * weights[0]) - (calculate_distance(object.position, position) * weights[1]) + (object.remaining_working_time * weights[2]) + (object.quality_of_service * weights[3]))
     return score
 
 class MultiHydrogenRecharge(ParallelEnv):
@@ -186,7 +186,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         "name": "multi_hydrogen_recharge_v0",
     }
 
-    def __init__(self, num_vehicles=3, num_commands=3):
+    def __init__(self, num_vehicles, num_commands):
         super().__init__()
 
         # Paramètres de l'environnement
@@ -247,7 +247,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         #   else:
         #     commande.weigths = [0.7, 0.1, 0.1, 0.1]
 
-        self.match_assignments_vehicule = Assignments_Vehicule(self.commands, self.vehicles)
+        self.match_assignments_vehicule = Assignments_Vehicle(self.commands, self.vehicles)
 
 
     def _get_observation(self):
@@ -268,7 +268,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         for commande in self.commands:
             commande.preference = []
             for vehicule in self.vehicles:
-                score = calculate_score_commande(vehicule, commande.weights, commande.position)
+                score = calculate_score_command(vehicule, commande.weights, commande.position)
                 commande.preference.append((vehicule.name, score))
 
         scores = [score for _, score in commande.preference]
@@ -343,7 +343,7 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         for commande in self.commands:
             for vehicule in self.vehicles:
-                score = calculate_score_commande(vehicule, commande.weights, commande.position)
+                score = calculate_score_command(vehicule, commande.weights, commande.position)
                 commande.preference.append((vehicule.name, score))
 
         # Extraia apenas os scores da preferência
@@ -380,12 +380,12 @@ class MultiHydrogenRecharge(ParallelEnv):
         # Actualise la préference de chaque véhicule et commande avec le nom et le Score
         for vehicule in self.vehicles:
             for commande in self.commands:
-                score = calculate_score_vehicule(commande, vehicule.weights, vehicule.position)
+                score = calculate_score_vehicle(commande, vehicule.weights, vehicule.position)
                 vehicule.preference.append((commande.name, score))
 
         for commande in self.commands:
             for vehicule in self.vehicles:
-                score = calculate_score_commande(vehicule, commande.weights, commande.position)
+                score = calculate_score_command(vehicule, commande.weights, commande.position)
                 commande.preference.append((vehicule.name, score))
 
         # Classez la préférence de chaque véhicule et commande en fonction du score
@@ -395,7 +395,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         for commande in self.commands:
             commande.preference.sort(key=lambda x: x[1], reverse=True)
 
-        self.match_assignments_vehicule = Assignments_Vehicule(self.commands, self.vehicles)
+        self.match_assignments_vehicule = Assignments_Vehicle(self.commands, self.vehicles)
         assignments_vehicule = self.match_assignments_vehicule.match()
 
         # Calcul de la récompense pour chaque véhicule

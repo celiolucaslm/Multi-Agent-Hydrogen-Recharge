@@ -129,7 +129,7 @@ plt.title('Average Reward Over Episodes')
 plt.grid(True)
 plt.show()
 
-checkpoint_path = "env"
+checkpoint_path = "maddpg_agent"
 agent.saveCheckpoint(checkpoint_path)
 
 
