@@ -35,7 +35,7 @@ for ep in range(episodes):
 
         # Get next action from agent
         cont_actions, discrete_action = agent.getAction(
-            state,
+            state
         )
         if agent.discrete_actions:
             action = discrete_action

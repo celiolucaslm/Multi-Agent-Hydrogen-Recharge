@@ -48,7 +48,7 @@ agent = MADDPG(state_dims=state_dim,
 # Define os parâmetros de treino do algoritmo
 episodes = 10000
 max_steps = 10
-epsilon = 1
+epsilon = 1.0
 eps_end = 0.01
 eps_decay = 0.995
 avg_after_episodes = 200
@@ -115,6 +115,7 @@ avg_rewards = []
 # Coleta dos valores de epsilon a cada episódio
 eps = []
 eps_values = []
+epsilon = 1.0
 for ep in range(episodes):
     epsilon = max(eps_end, epsilon * eps_decay)
     eps_values.append(epsilon)
