@@ -1,6 +1,6 @@
  # Multi-Agent-Hydrogen-Recharge
 
- In this repository, a multi-agent reinforcement environment is implemented for hydrogen refueling through mobile stations (vehicles), as described in the [internship report](https://github.com/celiolucaslm/Multi-Agent-Hydrogen-Recharge/blob/main/Rapport_Stage___Célio%20MEDEIROS.pdf) (in French).
+ In this repository, a multi-agent reinforcement learning environment is implemented for hydrogen refueling through mobile stations (vehicles), as described in the [internship report](https://github.com/celiolucaslm/Multi-Agent-Hydrogen-Recharge/blob/main/Rapport_Stage___Célio%20MEDEIROS.pdf) (in French).
  
  The [env](https://github.com/celiolucaslm/Multi-Agent-Hydrogen-Recharge/tree/main/multi_hydrogen_recharge/env) directory contains the implementation class for the MultiHydrogenRecharge environment. The [multi_hydrogen_recharge](https://github.com/celiolucaslm/Multi-Agent-Hydrogen-Recharge/tree/main/multi_hydrogen_recharge) directory includes the classes used by the learning environment as well as the code for training the [MADDPG](https://arxiv.org/pdf/1706.02275) algorithm. Additionally, it contains the algorithm's test codes and random action-taking codes used for result comparison. 
 
