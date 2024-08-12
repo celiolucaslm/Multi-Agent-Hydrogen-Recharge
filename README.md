@@ -1,4 +1,4 @@
- # Multi-Agent-Hydrogen-Recharge
+ # Multi-Agent Hydrogen Recharge
 
  In this repository, a multi-agent reinforcement learning environment is implemented for hydrogen refueling through mobile stations (vehicles), as described in the [internship report](https://github.com/celiolucaslm/Multi-Agent-Hydrogen-Recharge/blob/main/Rapport_Stage___Célio%20MEDEIROS.pdf) (in French).
  
