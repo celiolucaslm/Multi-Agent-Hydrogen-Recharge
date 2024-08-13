@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Definir os parâmetros padrão para rodar a simulação do ambiente
+# Set the default parameters for running the environment simulation
 seed = 42
 num_vehicles = 4
 num_commands = 4
@@ -14,28 +14,28 @@ np.random.seed(seed)
 
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, num_commands=num_commands, seed=seed)
 
-# Define os parâmetros de teste do ambiente
+# Defines the test parameters for the environment's random actions
 num_episodes = 10000
 max_steps = 10
 avg_after_episodes = 200
 
-# Armazena as recompensas
+# Stores the rewards
 reward_list = []
 
-# Boucle externe pour les episodes
+# External loop for episodes
 for episode in range(num_episodes):
   env.reset()
   vehicle_rewards = {i: 0 for i in range(env.num_vehicles)}
 
   for step in range(max_steps):
       
-      # Vehicule prendre une action aleatoire
+      # Vehicles take random action
       actions = np.random.rand(env.num_vehicles, 3)
       
-      # Execute l action et prendre le prochaine observation,  recompense et point d'arret
+      # Execute the action and take the next observation, reward and done (terminal state)
       observation, rewards, done = env.step(actions)
 
-      # Apres le fin du episode, garder les recompenses des vehicules
+      # After the end of the episode, keep the vehicle rewards
       for i, reward in enumerate(rewards):
           vehicle_rewards[i] += reward
 
@@ -48,10 +48,12 @@ for episode in range(num_episodes):
         avg_last_200 = np.mean(reward_list)
         print(f'Episode: {episode}, Average Reward: {avg_last_200}')
 
-# Lista para armazenar as médias das recompensas a cada 200 episódios
+# ------------------------------------------------------------------------------
+
+# List to store the average rewards every 200 episodes
 avg_rewards = []
 
-# Número total de episódios
+# Total number of episodes
 total_episodes = len(reward_list)
 
 for ep in range(200, total_episodes+1, avg_after_episodes):
@@ -59,14 +61,14 @@ for ep in range(200, total_episodes+1, avg_after_episodes):
     avg_rewards.append(avg_last_200)
     print(f'Episode: {ep}, Average Reward: {avg_last_200}')
 
-# Plota o gráfico das médias de recompensa
+# Plot the graph of reward averages
 plt.figure(figsize=(14, 6))
 plt.plot(range(avg_after_episodes, total_episodes + avg_after_episodes, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
-plt.xlabel('Épisodes')
-plt.ylabel('Récompense Moyenne')
-plt.title('Récompense Moyenne Au Cours Des Épisodes Pour Des Actions Aléatoires')
+plt.xlabel('Episodes')
+plt.ylabel('Reward Average')
+plt.title('Average Reward Over Episodes For Random Actions')
 plt.grid(True)
 plt.show()
 
-# Mostrar a tabela das estatísticas descritivas das recompensas médias
+# Show the table of descriptive statistics of average rewards
 pd.Series(avg_rewards).describe()

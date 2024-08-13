@@ -4,8 +4,9 @@ from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+import pandas as pd
 
-# Definir os parâmetros padrão para rodar a simulação do ambiente
+# Set the default parameters for running the environment simulation
 seed = 42
 num_vehicles = 4
 num_commands = 4
@@ -45,7 +46,7 @@ agent = MADDPG(state_dims=state_dim,
                 discrete_actions=discrete_actions,
                 device=device)
 
-# Define os parâmetros de treino do algoritmo
+# Define the algorithm's training parameters
 episodes = 10000
 max_steps = 10
 epsilon = 1.0
@@ -109,10 +110,10 @@ for ep in range(episodes):
 
 # ---------------------------------------------------------------------------
 
-# Lista para armazenar as médias das recompensas a cada 200 episódios
+# List to store the average rewards every 200 episodes
 avg_rewards = []
 
-# Coleta dos valores de epsilon a cada episódio
+# Collecting epsilon values every episode
 eps = []
 eps_values = []
 epsilon = 1.0
@@ -121,17 +122,16 @@ for ep in range(episodes):
     eps_values.append(epsilon)
     eps.append(ep)
 
-# Número total de episódios
+# Total number of episodes
 total_episodes = len(agent.scores)
 
-# Calculando a média das últimas 200 recompensas a cada 500 episódios
+# Calculating average rewards every 200 episodes
 for ep in range(avg_after_episodes, total_episodes+1, avg_after_episodes):
     avg_last_200 = np.mean(agent.scores[0:ep])
     avg_rewards.append(avg_last_200)
     print(f'Episode: {ep}, Average Reward: {avg_last_200}')
 
-
-# Plota o gráfico das médias de recompensa
+# Plot the graph of reward averages
 plt.figure(figsize=(14, 6))
 plt.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
 plt.xlabel('Épisodes')
@@ -140,33 +140,32 @@ plt.title("Récompense Moyenne Au Cours Des Épisodes Pour Entraîner L'Algorith
 plt.grid(True)
 plt.show()
 
-# Save the built algorithm
-checkpoint_path = "maddpg_agent"
-agent.saveCheckpoint(checkpoint_path)
-
-import pandas as pd
-pd.Series(avg_rewards).describe()
-
-# Gerar o gráfico
+# Generate the graph to compare epsilon and average rewards
 fig, ax1 = plt.subplots(figsize=(14, 6))
 
-# Eixo y para epsilon
-ax1.set_xlabel('Épisodes')
+# Y-axis for epsilon
+ax1.set_xlabel('Episodes')
 ax1.set_ylabel('Epsilon', color='blue')
 line1, = ax1.plot(eps, eps_values, color='blue', linestyle='--', label='Epsilon') 
 ax1.tick_params(axis='y', labelcolor='blue')
 
-# Eixo y para recompensas médias
+# Y-axis for average rewards
 ax2 = ax1.twinx()
-ax2.set_ylabel('Récompense Moyenne', color='black')
-line2, = ax2.plot(range(avg_after_episodes, episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black', label='Récompense Moyenne')
+ax2.set_ylabel('Average Reward', color='black')
+line2, = ax2.plot(range(avg_after_episodes, episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black', label='Average Reward')
 ax2.tick_params(axis='y', labelcolor='black')
 
 ax1.legend(loc='upper left', bbox_to_anchor=(0.8, 0.8))
 ax2.legend(loc='upper left', bbox_to_anchor=(0.8, 0.75))
 
-
 fig.tight_layout()
-plt.title("Valeur d'Epsilon et Récompense Moyenne Sur Les Épisodes Pour Entraîner L'Algorithme")
+plt.title("Epsilon Value and Average Reward Over Episodes To Train The Algorithm")
 plt.grid(True)
 plt.show()
+
+# Show the table of descriptive statistics of average rewards
+pd.Series(avg_rewards).describe()
+
+# Save the built algorithm
+checkpoint_path = "maddpg_agent"
+agent.saveCheckpoint(checkpoint_path)

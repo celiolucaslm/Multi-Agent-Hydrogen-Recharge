@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Definir os parâmetros padrão para rodar a simulação do ambiente
+# Set the default parameters for running the environment simulation
 seed = 42
 num_vehicles = 4
 num_commands = 4
@@ -17,7 +17,7 @@ np.random.seed(seed)
 checkpoint_path = "maddpg_agent"
 agent = MADDPG.load(checkpoint_path)
 
-# Armazena as recompensas
+# Stores the rewards
 agent.scores = []
 
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, num_commands=num_commands, seed=seed)
@@ -69,27 +69,27 @@ for ep in range(episodes):
 
 # ------------------------------------------------------------------------
 
-# Lista para armazenar as médias das recompensas a cada 200 episódios
+# List to store the average rewards every 200 episodes
 avg_rewards = []
 
-# Número total de episódios
+# Total number of episodes
 total_episodes = len(agent.scores)
 
-# Calculando a média das recompensas a cada 200 episódios
+# Calculating average rewards every 200 episodes
 for ep in range(200, total_episodes+1, avg_after_episodes):
     avg_last_200 = np.mean(agent.scores[0:ep])
     avg_rewards.append(avg_last_200)
     print(f'Episode: {ep}, Average Reward: {avg_last_200}')
 
 
-# Plota o gráfico das médias de recompensa
+# Plot the graph of reward averages
 plt.figure(figsize=(14, 6))
-plt.plot(range(avg_after_episodes, total_episodes + avg_after_episodes, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
-plt.xlabel('Épisodes')
-plt.ylabel('Récompense Moyenne')
-plt.title("Récompense Moyenne Sur Les Épisodes Pour Tester L'Algorithme")
+plt.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
+plt.xlabel('Episodes')
+plt.ylabel('Reward Average')
+plt.title("Average Reward Over Episodes To Test The Algorithm")
 plt.grid(True)
 plt.show()
 
-# Mostrar a tabela das estatísticas descritivas das recompensas médias
+# Show the table of descriptive statistics of average rewards
 pd.Series(avg_rewards).describe()
