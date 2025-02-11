@@ -8,19 +8,18 @@ import pandas as pd
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 4
-num_commands = 4
+num_vehicles = 5
 
 # -----------------------------------------------------------------------
 
 torch.manual_seed(seed)
 np.random.seed(seed)
 
-env = MultiHydrogenRecharge(num_vehicles=num_vehicles, num_commands=num_commands, seed=seed)
+env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-state_dim = [env._get_observation().shape for agent in env.vehicles]
+state_dim = [env._get_observation(vehicle_index=i).shape for i, agent in enumerate(env.vehicles)]
 
 action_dim = [env.action_space.shape[1] for agent in env.vehicles]
 discrete_actions = False
@@ -44,7 +43,9 @@ agent = MADDPG(state_dims=state_dim,
                 max_action=max_action,
                 min_action=min_action,
                 discrete_actions=discrete_actions,
-                device=device)
+                device=device,
+                learn_step=5,
+                batch_size=512)
 
 # Define the algorithm's training parameters
 episodes = 10000
@@ -52,7 +53,7 @@ max_steps = 10
 epsilon = 1.0
 eps_end = 0.01
 eps_decay = 0.995
-avg_after_episodes = 200
+avg_after_episodes = 500
 
 
 for ep in range(episodes):

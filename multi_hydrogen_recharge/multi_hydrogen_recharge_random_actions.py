@@ -5,19 +5,19 @@ import pandas as pd
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 4
-num_commands = 4
+num_vehicles = 5
+# num_commands = 4
 
 # --------------------------------------------------------------------
 
 np.random.seed(seed)
 
-env = MultiHydrogenRecharge(num_vehicles=num_vehicles, num_commands=num_commands, seed=seed)
+env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Defines the test parameters for the environment's random actions
-num_episodes = 10000
+num_episodes = 20000
 max_steps = 10
-avg_after_episodes = 200
+avg_after_episodes = 500
 
 # Stores the rewards
 reward_list = []
@@ -34,6 +34,8 @@ for episode in range(num_episodes):
       
       # Execute the action and take the next observation, reward and done (terminal state)
       observation, rewards, done = env.step(actions)
+
+      print(done)
 
       # After the end of the episode, keep the vehicle rewards
       for i, reward in enumerate(rewards):

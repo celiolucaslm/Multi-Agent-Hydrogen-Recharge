@@ -3,11 +3,12 @@ from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import unittest
+from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 
 # Set the default parameters for running the environment simulation
-seed = 42
-num_vehicles = 4
-num_commands = 4
+seed = 30
+num_vehicles = 5
 
 # ---------------------------------------------------------------------
 
@@ -17,19 +18,21 @@ np.random.seed(seed)
 checkpoint_path = "maddpg_agent"
 agent = MADDPG.load(checkpoint_path)
 
-# Stores the rewards
+# Stores the rewards and number of commands
 agent.scores = []
+num_commands_list = []
 
-env = MultiHydrogenRecharge(num_vehicles=num_vehicles, num_commands=num_commands, seed=seed)
+env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define os parâmetros de teste do algoritmo
 episodes = 10000
 max_steps = 10
-avg_after_episodes = 200
+avg_after_episodes = 500
 
 for ep in range(episodes):
     state = env.reset() # Reset environment at start of episode
     agent_reward = {i: 0 for i in range(env.num_vehicles)}
+    num_commands = 0
 
     for _ in range(max_steps):
 
@@ -52,15 +55,14 @@ for ep in range(episodes):
         # Update the state
         state = next_state
 
-        # Stop episode if any agents have terminated
-        # if any(truncation.values()) or any(termination.values()):
-        #     break
-
-    # Save the total episode reward
+        num_commands = env.num_commands
+        num_commands_list.append(num_commands)
+        
+    # Save the total episode reward and number of commands
     score = sum(agent_reward.values())
     agent.scores.append(score)
 
-    print('Actual Episode:', ep, '/ Reward:', score)
+    print('Actual Episode:', ep, '/ Reward:', score, '/ Number of Commands:', num_commands)
 
     # Print average reward of the last 200 episodes
     if ep % avg_after_episodes == 0 and ep != 0:
@@ -69,27 +71,45 @@ for ep in range(episodes):
 
 # ------------------------------------------------------------------------
 
-# List to store the average rewards every 200 episodes
+# List to store the average rewards and commands every 200 episodes
 avg_rewards = []
 
 # Total number of episodes
 total_episodes = len(agent.scores)
 
-# Calculating average rewards every 200 episodes
+# Calculating average rewards and commands every 200 episodes
 for ep in range(200, total_episodes+1, avg_after_episodes):
-    avg_last_200 = np.mean(agent.scores[0:ep])
-    avg_rewards.append(avg_last_200)
-    print(f'Episode: {ep}, Average Reward: {avg_last_200}')
-
+    avg_last_200_rewards = np.mean(agent.scores[0:ep])
+    avg_last_200_commands = np.mean(num_commands_list[0:ep])
+    avg_rewards.append(avg_last_200_rewards)
+    print(f'Episode: {ep}, Average Reward: {avg_last_200_rewards}, Average Commands: {avg_last_200_commands}')
 
 # Plot the graph of reward averages
-plt.figure(figsize=(14, 6))
-plt.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
-plt.xlabel('Episodes')
-plt.ylabel('Reward Average')
+fig, ax1 = plt.subplots(figsize=(14, 6))
+
+color = 'tab:blue'
+ax1.set_xlabel('Episodes')
+ax1.set_ylabel('Reward Average', color=color)
+ax1.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color=color)
+ax1.tick_params(axis='y', labelcolor=color)
+
 plt.title("Average Reward Over Episodes To Test The Algorithm")
+fig.tight_layout()
 plt.grid(True)
 plt.show()
 
-# Show the table of descriptive statistics of average rewards
-pd.Series(avg_rewards).describe()
+# Plot the graph of number of commands
+fig, ax2 = plt.subplots(figsize=(30, 12))
+
+color = 'tab:red'
+ax2.set_xlabel('Episodes')
+ax2.set_ylabel('Number of Commands', color=color)
+ax2.plot(range(1, 100 + 1), num_commands_list[:100], marker='x', linestyle='--', color=color)
+ax2.axhline(y=num_vehicles, color='green', linestyle='-', label='Number of Vehicles')
+ax2.tick_params(axis='y', labelcolor=color)
+
+plt.title("Number of Commands Over Episodes To Test The Algorithm")
+fig.tight_layout()
+plt.grid(True)
+plt.legend()
+plt.show()
