@@ -15,8 +15,8 @@ np.random.seed(seed)
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Defines the test parameters for the environment's random actions
-num_episodes = 20000
-max_steps = 10
+num_episodes = 10000
+max_steps = 5
 avg_after_episodes = 500
 
 # Stores the rewards
@@ -31,11 +31,10 @@ for episode in range(num_episodes):
       
       # Vehicles take random action
       actions = np.random.rand(env.num_vehicles, 3)
+      #actions = np.array([[0.1, 0.9, 0.1] for _ in range(env.num_vehicles)])	# Random actions
       
       # Execute the action and take the next observation, reward and done (terminal state)
       observation, rewards, done = env.step(actions)
-
-      print(done)
 
       # After the end of the episode, keep the vehicle rewards
       for i, reward in enumerate(rewards):

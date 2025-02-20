@@ -24,7 +24,7 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         # Environment settings
         self.num_vehicles = num_vehicles
-        self.max_commands = 20  # Define a maximum number of commands
+        self.max_commands = num_vehicles * 4  # Define a maximum number of commands
         self.num_commands = num_commands if num_commands is not None else np.random.poisson(lam=num_vehicles)
 
         # Defining the observation and action space
@@ -41,10 +41,10 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.action_space = spaces.Box(low=0, high=1, shape=(self.num_vehicles, 3), dtype=np.float32)
 
         # Initialization of vehicles information
-        self.vehicles = [Vehicle(f'V{i+1}', np.random.choice(np.arange(0, 1.1, 0.1), size=2), np.random.choice(np.arange(0.1, 1.1, 0.2)), np.random.choice(np.arange(0.1, 1.1, 0.1)), np.random.choice(np.arange(0.2, 1.1, 0.4)), np.ones(3) / 3) for i in range(num_vehicles)]
+        self.vehicles = [Vehicle(f'V{i+1}', np.random.choice(np.arange(0, 100, 1), size=2), np.random.choice(np.arange(50, 5000, 50)), np.random.choice(np.arange(60, 1440, 10)), np.random.choice(np.arange(1, 5, 1)), np.ones(3) / 3) for i in range(num_vehicles)]
 
         # Initialization of commands information
-        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(0, 1.1, 0.1), size=2), np.random.choice(np.arange(0.2, 1.1, 0.1)), np.random.choice(np.arange(0.1, 1.1, 0.1))) for j in range(self.num_commands)]
+        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(0, 100, 1), size=2), np.random.choice(np.arange(20, 500, 5)), np.random.choice(np.arange(5, 60, 1))) for j in range(self.num_commands)]
 
         # Matrix of weights of the commands based in different preference of types of vehicle
         commands_weights = []
@@ -67,23 +67,23 @@ class MultiHydrogenRecharge(ParallelEnv):
 
     def _get_observation(self, vehicle_index):
         vehicle = self.vehicles[vehicle_index]
-        vehicle_position = vehicle.position
+        vehicle_position = vehicle.position / 100.0  # Assuming positions are within a 100x100 grid
         command_positions = np.zeros((self.max_commands, 2))
         if self.num_commands > 0:
-            command_positions[:self.num_commands] = np.array([command.position for command in self.commands])
-        vehicle_hydrogen = np.array([v.hydrogen for v in self.vehicles])
-        vehicle_remaining_working_time = np.array([v.remaining_working_time for v in self.vehicles])
-        vehicle_quality_of_service = np.array([v.quality_of_service for v in self.vehicles])
+            command_positions[:self.num_commands] = np.array([command.position for command in self.commands]) / 100.0
+        vehicle_hydrogen = np.array([vehicle.hydrogen / 5000.0])  # Assuming max hydrogen is 5000
+        vehicle_remaining_working_time = np.array([vehicle.remaining_working_time / 1440.0])  # Assuming max working time is 1440
+        vehicle_quality_of_service = np.array([vehicle.quality_of_service / 5.0])  # Assuming max quality of service is 5
         command_prices = np.zeros(self.max_commands)
-        command_prices[:self.num_commands] = np.array([command.price for command in self.commands])
+        command_prices[:self.num_commands] = np.array([command.price for command in self.commands]) / 500.0  # Assuming max price is 500
         command_duration = np.zeros(self.max_commands)
-        command_duration[:self.num_commands] = np.array([command.duration for command in self.commands])
-        num_commands = np.array([self.num_commands])
+        command_duration[:self.num_commands] = np.array([command.duration for command in self.commands]) / 60.0  # Assuming max duration is 60
+        num_commands = np.array([self.num_commands / self.max_commands])
 
         # Calculate distances from this vehicle to each command
         distances = np.zeros(self.max_commands)
         for j, command in enumerate(self.commands):
-            distances[j] = calculate_distance(vehicle.position, command.position)
+            distances[j] = calculate_distance(vehicle.position, command.position) / math.sqrt(100**2 + 100**2)  # Normalize distance
 
         # Get command weights and fill with negative values for non-existing commands
         command_weights = np.full((self.max_commands, 4), -1.0)
@@ -100,19 +100,20 @@ class MultiHydrogenRecharge(ParallelEnv):
             vehicle_quality_of_service,
             command_prices,
             command_duration,
-            command_weights.flatten()  # Flatten the command weights array
+            # command_weights.flatten()  # Flatten the command weights array if needed
         ])
 
         return observation
 
+
     def reset(self):
         self.num_commands = np.random.poisson(lam=self.num_vehicles)
         # Reset of commands information
-        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(0, 1.1, 0.1), size=2), np.random.choice(np.arange(0.2, 1.1, 0.1)), np.random.choice(np.arange(0.1, 1.1, 0.1))) for j in range(self.num_commands)]
+        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(0, 100, 1), size=2), np.random.choice(np.arange(20, 500, 5)), np.random.choice(np.arange(5, 60, 1))) for j in range(self.num_commands)]
 
         # Reset of vehicles information
-        self.vehicles = [Vehicle(f'V{i+1}', np.random.choice(np.arange(0, 1.1, 0.1), size=2), np.random.choice(np.arange(0.1, 1.1, 0.2)), np.random.choice(np.arange(0.1, 1.1, 0.1)), np.random.choice(np.arange(0.2, 1.1, 0.4)), np.ones(3) / 3) for i in range(self.num_vehicles)]
-        
+        self.vehicles = [Vehicle(f'V{i+1}', np.random.choice(np.arange(0, 100, 1), size=2), np.random.choice(np.arange(50, 5000, 50)), np.random.choice(np.arange(60, 1440, 10)), np.random.choice(np.arange(1, 5, 1)), np.ones(3) / 3) for i in range(self.num_vehicles)]
+   
         # Matrix of weights of the commands based in different preference of types of vehicle
         commands_weights = []
         
@@ -169,6 +170,18 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.match_assignments_vehicule = AssignmentsVehicle(list(self.commands), list(self.vehicles))
         assignments_vehicule = self.match_assignments_vehicule.match()
 
+        # for c in self.commands:
+        #     print(f'Preference of the Command {c.name}:', c.preference)
+        
+        # for v in self.vehicles:
+        #     print(f'Preference of the Vehicle {v.name}:', v.preference)   
+
+        # print('Assignments:', assignments_vehicule)
+
+        # for v in self.vehicles:
+        #     distances = [calculate_distance(v.position, c.position) for c in self.commands]
+        #     print(f'Vehicle {v.name}: Distances to commands - {distances}, Hydrogen - {v.hydrogen}, Remaining Working Time - {v.remaining_working_time}, Quality of Service - {v.quality_of_service}')
+
         # Reward calculation for each vehicle
         rewards = []
         for i, vehicule in enumerate(self.vehicles):
@@ -200,16 +213,17 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         # Vehicles lose hydrogen after a service
         for vehicule in self.vehicles:
+            #print(f'Vehicle {vehicule.name}: Vehicle Job - {vehicule.job}')
             if vehicule.job is not None:
-                vehicule.hydrogen = vehicule.hydrogen - (vehicule.job.duration * 0.2)
+                vehicule.hydrogen = vehicule.hydrogen - (vehicule.job.duration * 80)
                 # Ensure hydrogen does not go below zero
-                vehicule.hydrogen = max(vehicule.hydrogen, 0.0)
+                #vehicule.hydrogen = max(vehicule.hydrogen, 0.0)
 
 
         self.num_commands = np.random.poisson(lam=self.num_vehicles)
 
         # Reset of commands information
-        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(0, 1.1, 0.1), size=2), np.random.choice(np.arange(0.2, 1.1, 0.1)), np.random.choice(np.arange(0.1, 1.1, 0.1))) for j in range(self.num_commands)]
+        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(0, 100, 1), size=2), np.random.choice(np.arange(20, 500, 5)), np.random.choice(np.arange(5, 60, 1))) for j in range(self.num_commands)]
 
         # Matrix of weights of the commands based in different preference of types of vehicle
         # commands_weights = []
@@ -260,9 +274,28 @@ def calculate_distance(position1, position2):
     return math.sqrt((position1[0] - position2[0])**2 + (position1[1] - position2[1])**2)
 
 def calculate_vehicle_score(command, weights, position):
-    score = (command.price * weights[0]) - (calculate_distance(command.position, position) * weights[1]) - (command.duration * weights[2])
+    max_price = 500.0 
+    max_distance = math.sqrt(100**2 + 100**2)  # Assuming positions are within a 100x100 grid
+    max_duration = 60.0  # Assuming duration is between 0 and 1
+
+    normalized_price = command.price / max_price
+    normalized_distance = calculate_distance(command.position, position) / max_distance
+    normalized_duration = command.duration / max_duration
+
+    score = ((normalized_price * weights[0])) - (normalized_distance * weights[1]) - (normalized_duration * weights[2])
     return score
 
 def calculate_command_score(vehicle, weights, position):
-    score = ((vehicle.hydrogen * weights[0]) - (calculate_distance(vehicle.position, position) * weights[1]) + (vehicle.remaining_working_time * weights[2]) + (vehicle.quality_of_service * weights[3]))
+    # Normalize each attribute
+    max_hydrogen = 5000.0  # Assuming hydrogen is between 0 and 1
+    max_distance = math.sqrt(100**2 + 100**2)  # Assuming positions are within a 100x100 grid
+    max_working_time = 1440.0  # Assuming working time is between 0 and 1
+    max_quality_of_service = 5.0  # Assuming quality of service is between 0 and 1
+
+    normalized_hydrogen = vehicle.hydrogen / max_hydrogen
+    normalized_distance = calculate_distance(vehicle.position, position) / max_distance
+    normalized_working_time = vehicle.remaining_working_time / max_working_time
+    normalized_quality_of_service = vehicle.quality_of_service / max_quality_of_service
+
+    score = ((normalized_hydrogen * weights[0]) - (normalized_distance * weights[1]) + (normalized_working_time * weights[2]) + (normalized_quality_of_service * weights[3]))
     return score

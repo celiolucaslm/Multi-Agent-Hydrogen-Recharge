@@ -1,15 +1,10 @@
 from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 
-env = MultiHydrogenRecharge(num_vehicles=2)
-for i in range(0, 10):
-    state = env.reset()
+env = MultiHydrogenRecharge(num_vehicles=3)
 
-    for i in range(0, 5):
-        next_state, reward, done = env.step([[1, 1, 1], [2, 2, 2]])
-
-        # print(f"Next State: {next_state}")
-        # print(f"Reward: {reward}")
-        # print(f"Done: {done}")
-
-        # print(f"Number of Commands: {env.num_commands}")
-        # print(env.num_commands)
+state = env.reset()
+state
+print(env.num_commands)
+env._get_observation(1)
+_, reward, _ = env.step([[0.1, 0.9, 0.1], [0.1, 0.9, 0.1], [0.1, 0.9, 0.1]])
+reward
