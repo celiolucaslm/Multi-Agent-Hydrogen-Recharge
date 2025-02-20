@@ -84,7 +84,7 @@ class AssignmentsVehicle:
                     vehicle = self.assignments[vehicle_name]
 
                     if vehicle.is_available():
-                        self.assign(best_proposer.name, vehicle_name)
+                        self.assign(vehicle_name, best_proposer.name)
                     else:
                         current_command = vehicle.command
                         if current_command is not None:
@@ -92,8 +92,8 @@ class AssignmentsVehicle:
                     
                             # Check if current_vehicule_score is different from None before making the comparison
                             if current_command_score is not None and best_score > current_command_score:
-                                self.unassign(current_command.name, vehicle_name)
-                                self.assign(best_proposer.name, vehicle_name)
+                                self.unassign(vehicle_name, current_command.name)
+                                self.assign(vehicle_name, best_proposer.name)
 
 
             # Clear proposals after processing
@@ -105,7 +105,7 @@ class AssignmentsVehicle:
         matches = {}
         for i in self.assignments:
             assignment = self.assignments[i]
-            if isinstance(assignment, Command) and assignment.is_matched:
+            if isinstance(assignment, Vehicle) and assignment.is_matched:
                 matches[frozenset([assignment.name, assignment.job.name])] = True
         return list(matches.keys())
     
