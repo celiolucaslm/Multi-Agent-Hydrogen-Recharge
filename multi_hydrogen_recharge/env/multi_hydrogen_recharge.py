@@ -170,13 +170,13 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.match_assignments_vehicule = AssignmentsVehicle(list(self.commands), list(self.vehicles))
         assignments_vehicule = self.match_assignments_vehicule.match()
 
-        # for c in self.commands:
-        #     print(f'Preference of the Command {c.name}:', c.preference)
+        for c in self.commands:
+            print(f'Preference of the Command {c.name}:', c.preference)
         
-        # for v in self.vehicles:
-        #     print(f'Preference of the Vehicle {v.name}:', v.preference)   
+        for v in self.vehicles:
+            print(f'Preference of the Vehicle {v.name}:', v.preference)   
 
-        # print('Assignments:', assignments_vehicule)
+        print('Assignments:', assignments_vehicule)
 
         # for v in self.vehicles:
         #     distances = [calculate_distance(v.position, c.position) for c in self.commands]

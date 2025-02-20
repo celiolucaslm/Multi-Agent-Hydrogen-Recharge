@@ -54,49 +54,50 @@ class AssignmentsVehicle:
             vehicle.reset_index()
 
     def match(self):
-        proposals = {command.name: [] for command in self.commands}
+        proposals = {vehicle.name: [] for vehicle in self.vehicles}
 
         # Loop until all vehicles are matched
         while True:
             # Find all unmatched vehicles
             unmatched_vehicles = [vehicle for vehicle in self.vehicles if not vehicle.is_matched]
             unmatched_commands = [command for command in self.commands if not command.is_matched]
-            if not unmatched_vehicles:
+            if not unmatched_commands:
                 break
 
-            if unmatched_commands:
-                for vehicle in unmatched_vehicles:
+            if unmatched_vehicles:
+                for command in unmatched_commands:
                         # Vehicule makes a proposal to the next commande in its preference list
-                        command_name, score = vehicle.propose()
-                        command = self.assignments[command_name]
-                        command.update_score(score)
+                        vehicle_name, score = command.propose()
+                        vehicle = self.assignments[vehicle_name]
+                        vehicle.update_score(score)
 
-                        proposals[command_name].append((vehicle, score))
+                        proposals[vehicle_name].append((command, score))
             else:
                 break
                      
 
             # Process proposals for each commande
-            for command_name, proposers in proposals.items():
+            for vehicle_name, proposers in proposals.items():
                 if proposers:
                     proposers.sort(key=lambda x: x[1], reverse=True)  # Sort proposers by score
                     best_proposer, best_score = proposers[0]
-                    command = self.assignments[command_name]
+                    vehicle = self.assignments[vehicle_name]
 
-                    if command.is_available():
-                        self.assign(best_proposer.name, command_name)
+                    if vehicle.is_available():
+                        self.assign(best_proposer.name, vehicle_name)
                     else:
-                        current_vehicule = command.vehicule
-                        current_vehicule_score = next((score for v, score in proposers if v.name == current_vehicule.name), None)
-
-                        # Check if current_vehicule_score is different from None before making the comparison
-                        if current_vehicule_score is not None and best_score > current_vehicule_score:
-                            self.unassign(current_vehicule.name, command_name)
-                            self.assign(best_proposer.name, command_name)
+                        current_command = vehicle.command
+                        if current_command is not None:
+                            current_command_score = next((score for c, score in proposers if c.name == current_command.name), None)
+                    
+                            # Check if current_vehicule_score is different from None before making the comparison
+                            if current_command_score is not None and best_score > current_command_score:
+                                self.unassign(current_command.name, vehicle_name)
+                                self.assign(best_proposer.name, vehicle_name)
 
 
             # Clear proposals after processing
-            proposals = {command.name: [] for command in self.commands}
+            proposals = {vehicle.name: [] for vehicle in self.vehicles}
 
         return self.sets()
 
@@ -104,7 +105,7 @@ class AssignmentsVehicle:
         matches = {}
         for i in self.assignments:
             assignment = self.assignments[i]
-            if isinstance(assignment, Vehicle) and assignment.is_matched:
+            if isinstance(assignment, Command) and assignment.is_matched:
                 matches[frozenset([assignment.name, assignment.job.name])] = True
         return list(matches.keys())
     
@@ -124,7 +125,7 @@ def calculate_command_score(vehicle, weights, position):
 
 # ---------------------------------------------------------------------
 
-# # Create a list of commands
+# Create a list of commands
 # for i in range(1, 4):
 #     command1 = Command(name='command1', position=(0, 0), price=10, duration=2)
 #     command2 = Command(name='command2', position=(10, 10), price=20, duration=3)

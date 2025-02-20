@@ -12,6 +12,7 @@ class Vehicle:
         self.job = None
         self.index = 0
         self.score = 0
+        self.command = None
 
     def propose(self):
         commande = self.preference[self.index]
