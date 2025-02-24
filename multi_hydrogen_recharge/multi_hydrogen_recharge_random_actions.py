@@ -15,9 +15,9 @@ np.random.seed(seed)
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Defines the test parameters for the environment's random actions
-num_episodes = 10000
-max_steps = 5
-avg_after_episodes = 500
+num_episodes = 5000
+max_steps = 10
+avg_after_episodes = 200
 
 # Stores the rewards
 reward_list = []

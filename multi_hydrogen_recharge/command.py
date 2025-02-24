@@ -1,11 +1,12 @@
 # Declaration Class Command
 class Command:
-    def __init__(self, name, position, price, duration):
+    def __init__(self, name, position, price, duration, traffic_condition):
         self.name = name
         self.position = position
         self.price = price
         self.duration = duration
-        self.weights = [0.25, 0.25, 0.25, 0.25]
+        self.traffic_condition = traffic_condition
+        self.weights = [0., 0., 0., 0.]
         self.preference = []
         self.is_matched = False
         self.vehicle = None

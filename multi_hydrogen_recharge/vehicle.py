@@ -1,11 +1,12 @@
 # Declaration Class Vehicle
 class Vehicle:
-    def __init__(self, name, position, hydrogen, remaining_working_time, quality_of_service, weights):
+    def __init__(self, name, position, hydrogen, remaining_working_time, quality_of_service, traffic_condition, weights):
         self.name = name
         self.position = position
         self.hydrogen = hydrogen
         self.remaining_working_time = remaining_working_time
         self.quality_of_service = quality_of_service
+        self.is_bad_traffic_condition = traffic_condition
         self.weights = weights
         self.preference = []
         self.is_matched = False

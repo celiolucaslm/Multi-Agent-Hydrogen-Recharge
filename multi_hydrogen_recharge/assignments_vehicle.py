@@ -48,7 +48,7 @@ class AssignmentsVehicle:
             command.reset_index()
 
         for vehicle in self.vehicles:
-            vehicle.is_matched = False
+            #vehicle.is_matched = False
             vehicle.job = None
             vehicle.reward = 0
             vehicle.reset_index()
@@ -68,13 +68,14 @@ class AssignmentsVehicle:
                 for command in unmatched_commands:
                         # Vehicule makes a proposal to the next commande in its preference list
                         vehicle_name, score = command.propose()
-                        vehicle = self.assignments[vehicle_name]
-                        vehicle.update_score(score)
+                        if vehicle_name in self.assignments:
+                            vehicle = self.assignments[vehicle_name]
+                            vehicle.update_score(score)
 
-                        proposals[vehicle_name].append((command, score))
+                            proposals[vehicle_name].append((command, score))
             else:
                 break
-                     
+                    
 
             # Process proposals for each commande
             for vehicle_name, proposers in proposals.items():
