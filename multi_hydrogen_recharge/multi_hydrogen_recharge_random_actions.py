@@ -6,7 +6,6 @@ import pandas as pd
 # Set the default parameters for running the environment simulation
 seed = 42
 num_vehicles = 5
-# num_commands = 4
 
 # --------------------------------------------------------------------
 
@@ -30,8 +29,8 @@ for episode in range(num_episodes):
   for step in range(max_steps):
       
       # Vehicles take random action
-      actions = np.random.rand(env.num_vehicles, 3)
-      #actions = np.array([[0.1, 0.9, 0.1] for _ in range(env.num_vehicles)])	# Random actions
+      #actions = np.random.rand(env.num_vehicles, 3)
+      actions = np.array([[0., 1., 0.] for _ in range(env.num_vehicles)])	# Random actions
       
       # Execute the action and take the next observation, reward and done (terminal state)
       observation, rewards, done = env.step(actions)
