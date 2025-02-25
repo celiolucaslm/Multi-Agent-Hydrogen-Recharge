@@ -168,6 +168,10 @@ class MultiHydrogenRecharge(ParallelEnv):
         for i, vehicle in enumerate(self.vehicles):
             vehicle.weights = actions[i]
 
+        # Update the weights of the commands
+        for command in self.commands:
+            command.weights = np.random.rand(4)
+
         # Updates the preference of each vehicle and order with name and Score
         for vehicule in self.vehicles:
             for commande in self.commands:
