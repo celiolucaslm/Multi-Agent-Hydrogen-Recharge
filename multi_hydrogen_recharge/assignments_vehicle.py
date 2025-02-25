@@ -58,7 +58,7 @@ class AssignmentsVehicle:
 
         # Loop until all vehicles are matched
         while True:
-            # Find all unmatched vehicles
+            # Find all unmatched vehicles and commands
             unmatched_vehicles = [vehicle for vehicle in self.vehicles if not vehicle.is_matched]
             unmatched_commands = [command for command in self.commands if not command.is_matched]
             if not unmatched_commands:
