@@ -25,9 +25,9 @@ num_commands_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define os parâmetros de teste do algoritmo
-episodes = 10000
+episodes = 5000
 max_steps = 10
-avg_after_episodes = 500
+avg_after_episodes = 200
 
 for ep in range(episodes):
     state = env.reset() # Reset environment at start of episode

@@ -13,8 +13,8 @@ from pettingzoo import ParallelEnv
 MIN_HYDROGEN = 50
 MAX_HYDROGEN = 5000
 
-MIN_WORKING_TIME = 60
-MAX_WORKING_TIME = 1440
+MIN_WORKING_TIME = 5
+MAX_WORKING_TIME = 480
 
 MIN_QUALITY_OF_SERVICE = 1
 MAX_QUALITY_OF_SERVICE = 5
@@ -26,8 +26,9 @@ MIN_DURATION = 5
 MAX_DURATION = 20
 
 BAD_TRAFFIC_CONDITION = False
-START_OF_AREA_WITH_BAD_TRAFFIC = 10
-END_OF_AREA_WITH_BAD_TRAFFIC = 90
+START_OF_AREA_WITH_BAD_TRAFFIC = 40
+END_OF_AREA_WITH_BAD_TRAFFIC = 60
+DISTANCE_RATE_IF_BAD_TRAFFIC = 1.5
 
 TIME_LIMIT_FOR_THE_VEHICLE_NOT_TO_BE_DEACTIVATED = 10
 
@@ -168,10 +169,6 @@ class MultiHydrogenRecharge(ParallelEnv):
         for i, vehicle in enumerate(self.vehicles):
             vehicle.weights = actions[i]
 
-        # Update the weights of the commands
-        for command in self.commands:
-            command.weights = np.random.rand(4)
-
         # Updates the preference of each vehicle and order with name and Score
         for vehicule in self.vehicles:
             for commande in self.commands:
@@ -270,17 +267,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         for command in self.commands:
             command.weights = np.random.rand(4)
 
-        # Track the number of steps each vehicle has received a reward <= 0
-        if not hasattr(self, 'negative_reward_steps'):
-            self.negative_reward_steps = {i: 0 for i in range(self.num_vehicles)}
-
-        for i, reward in enumerate(rewards):
-            if reward <= 0:
-                self.negative_reward_steps[i] += 1
-            else:
-                self.negative_reward_steps[i] = 0
-
-        done = {i: self.negative_reward_steps[i] >= self.num_vehicles for i in range(self.num_vehicles)} # If a vehicle has received a negative reward for the total number of vehicles in consecutive steps, the episode ends for it
+        done = {i: False for i in range(self.num_vehicles)} # There is no terminal state in the environment
 
         # Reset preferences (vehicles and commands)
         for vehicle in self.vehicles:
@@ -318,7 +305,7 @@ def calculate_command_score(vehicle, weights, position):
     normalized_hydrogen = vehicle.hydrogen / MAX_HYDROGEN
     traffic_condition = vehicle.is_bad_traffic_condition
     if traffic_condition == True:
-        normalized_distance =  (1.5 * calculate_distance(vehicle.position, position)) / MAX_DISTANCE # If the traffic condition is bad, the distance is multiplied by 1.5 (mean velocity decrease by 50%)
+        normalized_distance =  (DISTANCE_RATE_IF_BAD_TRAFFIC * calculate_distance(vehicle.position, position)) / MAX_DISTANCE # If the traffic condition is bad, the distance is multiplied by 1.5 (mean velocity decrease by 50%)
     else:
         normalized_distance = calculate_distance(vehicle.position, position) / MAX_DISTANCE
     normalized_working_time = vehicle.remaining_working_time / MAX_WORKING_TIME

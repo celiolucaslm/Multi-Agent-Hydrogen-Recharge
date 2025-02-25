@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Set the default parameters for running the environment simulation
-seed = 42
+seed = 30
 num_vehicles = 5
 
 # --------------------------------------------------------------------
@@ -38,6 +38,10 @@ for episode in range(num_episodes):
       # After the end of the episode, keep the vehicle rewards
       for i, reward in enumerate(rewards):
           vehicle_rewards[i] += reward
+    
+    #   # Stop episode if any agents have terminated
+    #   if any(done):
+    #     break
 
   score = sum(vehicle_rewards.values())
   reward_list.append(score)
