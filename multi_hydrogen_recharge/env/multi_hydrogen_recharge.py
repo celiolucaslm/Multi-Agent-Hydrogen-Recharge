@@ -168,10 +168,6 @@ class MultiHydrogenRecharge(ParallelEnv):
         for i, vehicle in enumerate(self.vehicles):
             vehicle.weights = actions[i]
 
-        # Update the weights of the commands
-        for command in self.commands:
-            command.weights = np.random.rand(4)
-
         # Updates the preference of each vehicle and order with name and Score
         for vehicule in self.vehicles:
             for commande in self.commands:
@@ -270,17 +266,17 @@ class MultiHydrogenRecharge(ParallelEnv):
         for command in self.commands:
             command.weights = np.random.rand(4)
 
-        # Track the number of steps each vehicle has received a reward <= 0
-        if not hasattr(self, 'negative_reward_steps'):
-            self.negative_reward_steps = {i: 0 for i in range(self.num_vehicles)}
+        # # Track the number of steps each vehicle has received a reward <= 0
+        # if not hasattr(self, 'negative_reward_steps'):
+        #     self.negative_reward_steps = {i: 0 for i in range(self.num_vehicles)}
 
-        for i, reward in enumerate(rewards):
-            if reward <= 0:
-                self.negative_reward_steps[i] += 1
-            else:
-                self.negative_reward_steps[i] = 0
+        # for i, reward in enumerate(rewards):
+        #     if reward < 0:
+        #         self.negative_reward_steps[i] += reward
+        #     else:
+        #         self.negative_reward_steps[i] = 0
 
-        done = {i: self.negative_reward_steps[i] >= self.num_vehicles for i in range(self.num_vehicles)} # If a vehicle has received a negative reward for the total number of vehicles in consecutive steps, the episode ends for it
+        done = {i: False for i in range(self.num_vehicles)} # If a vehicle has received a negative reward for the total number of vehicles in consecutive steps, the episode ends for it
 
         # Reset preferences (vehicles and commands)
         for vehicle in self.vehicles:

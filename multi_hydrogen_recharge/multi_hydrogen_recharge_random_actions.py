@@ -15,7 +15,7 @@ env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Defines the test parameters for the environment's random actions
 num_episodes = 5000
-max_steps = 10
+max_steps = 25
 avg_after_episodes = 200
 
 # Stores the rewards
@@ -38,6 +38,10 @@ for episode in range(num_episodes):
       # After the end of the episode, keep the vehicle rewards
       for i, reward in enumerate(rewards):
           vehicle_rewards[i] += reward
+    
+      # Stop episode if any agents have terminated
+      if any(done):
+        break
 
   score = sum(vehicle_rewards.values())
   reward_list.append(score)
