@@ -37,7 +37,7 @@ memory = MultiAgentReplayBuffer(memory_size=1_000_000,
 
 NET_CONFIG = {
       "arch": "mlp",  # Network architecture
-      "h_size": [128, 128, 128],  # Hidden size
+      "h_size": [256, 256, 256],  # Hidden size
   }
 
 agent = MADDPG(state_dims=state_dim,
@@ -50,11 +50,11 @@ agent = MADDPG(state_dims=state_dim,
                 discrete_actions=discrete_actions,
                 device=device,
                 learn_step=5,
-                batch_size=758,
+                batch_size=512,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
-episodes = 5000
+episodes = 7000
 max_steps = 10
 epsilon = 1.0
 eps_end = 0.01

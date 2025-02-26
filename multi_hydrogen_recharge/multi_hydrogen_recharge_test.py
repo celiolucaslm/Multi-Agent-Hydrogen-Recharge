@@ -3,7 +3,6 @@ from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import unittest
 from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 
 # Set the default parameters for running the environment simulation
@@ -24,8 +23,8 @@ num_commands_list = []
 
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
-# Define os parâmetros de teste do algoritmo
-episodes = 5000
+# Define the parameters for testing the algorithm
+episodes = 7000
 max_steps = 10
 avg_after_episodes = 200
 
@@ -113,3 +112,6 @@ fig.tight_layout()
 plt.grid(True)
 plt.legend()
 plt.show()
+
+# Show the table of descriptive statistics of average rewards
+pd.Series(avg_rewards).describe()
