@@ -3,7 +3,6 @@ from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import unittest
 from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 
 # Set the default parameters for running the environment simulation
@@ -24,8 +23,8 @@ num_commands_list = []
 
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
-# Define os parâmetros de teste do algoritmo
-episodes = 5000
+# Define the parameters for testing the algorithm
+episodes = 10000
 max_steps = 10
 avg_after_episodes = 200
 
@@ -57,6 +56,10 @@ for ep in range(episodes):
 
         num_commands = env.num_commands
         num_commands_list.append(num_commands)
+
+        # Stop episode if all agents have terminated
+        if all(done.values()):
+            break
         
     # Save the total episode reward and number of commands
     score = sum(agent_reward.values())
@@ -84,13 +87,20 @@ for ep in range(200, total_episodes+1, avg_after_episodes):
     avg_rewards.append(avg_last_200_rewards)
     print(f'Episode: {ep}, Average Reward: {avg_last_200_rewards}, Average Commands: {avg_last_200_commands}')
 
-# Plot the graph of reward averages
+# Calculate the standard deviation of rewards every 200 episodes
+std_rewards = np.std(avg_rewards)
+
+# Plot the graph of reward averages with standard deviation
 fig, ax1 = plt.subplots(figsize=(14, 6))
 
 color = 'tab:blue'
 ax1.set_xlabel('Episodes')
 ax1.set_ylabel('Reward Average', color=color)
 ax1.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color=color)
+ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episodes),
+                 np.array(avg_rewards) - np.array(std_rewards),
+                 np.array(avg_rewards) + np.array(std_rewards),
+                 color=color, alpha=0.2)
 ax1.tick_params(axis='y', labelcolor=color)
 
 plt.title("Average Reward Over Episodes To Test The Algorithm")
@@ -113,3 +123,6 @@ fig.tight_layout()
 plt.grid(True)
 plt.legend()
 plt.show()
+
+# Show the table of descriptive statistics of average rewards
+pd.Series(avg_rewards).describe()

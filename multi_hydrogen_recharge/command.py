@@ -5,7 +5,7 @@ class Command:
         self.position = position
         self.price = price
         self.duration = duration
-        self.traffic_condition = traffic_condition
+        self.is_bad_traffic_condition = traffic_condition
         self.weights = [0., 0., 0., 0.]
         self.preference = []
         self.is_matched = False

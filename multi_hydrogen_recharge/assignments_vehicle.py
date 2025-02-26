@@ -56,7 +56,7 @@ class AssignmentsVehicle:
     def match(self):
         proposals = {vehicle.name: [] for vehicle in self.vehicles}
 
-        # Loop until all vehicles are matched
+        # Loop until all vehicles are matched if we have enough commands
         while True:
             # Find all unmatched vehicles and commands
             unmatched_vehicles = [vehicle for vehicle in self.vehicles if not vehicle.is_matched]
@@ -66,7 +66,7 @@ class AssignmentsVehicle:
 
             if unmatched_vehicles:
                 for command in unmatched_commands:
-                        # Vehicule makes a proposal to the next commande in its preference list
+                        # Command makes a proposal to the next vehicle in its preference list
                         vehicle_name, score = command.propose()
                         if vehicle_name in self.assignments:
                             vehicle = self.assignments[vehicle_name]
@@ -77,7 +77,7 @@ class AssignmentsVehicle:
                 break
                     
 
-            # Process proposals for each commande
+            # Process proposals for each vehicle
             for vehicle_name, proposers in proposals.items():
                 if proposers:
                     proposers.sort(key=lambda x: x[1], reverse=True)  # Sort proposers by score
@@ -91,7 +91,7 @@ class AssignmentsVehicle:
                         if current_command is not None:
                             current_command_score = next((score for c, score in proposers if c.name == current_command.name), None)
                     
-                            # Check if current_vehicule_score is different from None before making the comparison
+                            # Check if current_command_score is different from None before making the comparison
                             if current_command_score is not None and best_score > current_command_score:
                                 self.unassign(vehicle_name, current_command.name)
                                 self.assign(vehicle_name, best_proposer.name)
@@ -109,57 +109,3 @@ class AssignmentsVehicle:
             if isinstance(assignment, Vehicle) and assignment.is_matched:
                 matches[frozenset([assignment.name, assignment.job.name])] = True
         return list(matches.keys())
-    
-# --- Test the AssignmentsVehicle class ---
-
-# Auxiliary functions to calculate the score and distance of a vehicle and a command
-def calculate_distance(position1, position2):
-    return math.sqrt((position1[0] - position2[0])**2 + (position1[1] - position2[1])**2)
-
-def calculate_vehicle_score(command, weights, position):
-    score = (command.price * weights[0]) - (calculate_distance(command.position, position) * weights[1]) - (command.duration * weights[2])
-    return score
-
-def calculate_command_score(vehicle, weights, position):
-    score = ((vehicle.hydrogen * weights[0]) - (calculate_distance(vehicle.position, position) * weights[1]) + (vehicle.remaining_working_time * weights[2]) + (vehicle.quality_of_service * weights[3]))
-    return score
-
-# ---------------------------------------------------------------------
-
-# Create a list of commands
-# for i in range(1, 4):
-#     command1 = Command(name='command1', position=(0, 0), price=10, duration=2)
-#     command2 = Command(name='command2', position=(10, 10), price=20, duration=3)
-
-#     commands = [command1, command2]
-
-#     # Create a list of vehicles
-#     vehicle1 = Vehicle(name='vehicle1', position=(0, 0), hydrogen=100, remaining_working_time=10, quality_of_service=1, weights=[1, 1, 1])
-#     vehicle2 = Vehicle(name='vehicle2', position=(10, 10), hydrogen=100, remaining_working_time=10, quality_of_service=1, weights=[1, 1, 1])
-#     vehicle3 = Vehicle(name='vehicle3', position=(20, 20), hydrogen=100, remaining_working_time=10, quality_of_service=1, weights=[1, 1, 1])
-#     vehicles = [vehicle1, vehicle2, vehicle3]
-
-#     # Updates the preference of each vehicle and order with name and Score
-#     for vehicule in vehicles:
-#         for commande in commands:
-#             score = calculate_vehicle_score(commande, vehicule.weights, vehicule.position)
-#             vehicule.preference.append((commande.name, score))
-
-#     for commande in commands:
-#         for vehicule in vehicles:
-#             score = calculate_command_score(vehicule, commande.weights, commande.position)
-#             commande.preference.append((vehicule.name, score))
-
-#     # Rank the preference of each vehicle and order according to score
-#     for vehicule in vehicles:
-#         vehicule.preference.sort(key=lambda x: x[1], reverse=True)
-
-#     for commande in commands:
-#         commande.preference.sort(key=lambda x: x[1], reverse=True)
-
-#     # Create an instance of the AssignmentsVehicle class
-#     GaleShapley = AssignmentsVehicle(commands, vehicles)
-
-#     # Match the vehicles with the commands
-#     matches = GaleShapley.match()
-#     print(matches)
