@@ -267,7 +267,17 @@ class MultiHydrogenRecharge(ParallelEnv):
         for command in self.commands:
             command.weights = np.random.rand(4)
 
-        done = {i: False for i in range(self.num_vehicles)} # There is no terminal state in the environment
+        # Track the number of steps each vehicle has received a reward <= 0
+        if not hasattr(self, 'negative_reward_steps'):
+            self.negative_reward_steps = {i: 0 for i in range(self.num_vehicles)}
+
+        for i, reward in enumerate(rewards):
+            if reward <= 0:
+                self.negative_reward_steps[i] += 1
+            else:
+                self.negative_reward_steps[i] = 0
+
+        done = {i: self.negative_reward_steps[i] >= self.num_vehicles for i in range(self.num_vehicles)} # If a vehicle has received a negative reward for the total number of vehicles in consecutive steps, the episode ends for it
 
         # Reset preferences (vehicles and commands)
         for vehicle in self.vehicles:

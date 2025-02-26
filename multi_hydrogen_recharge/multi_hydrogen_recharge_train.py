@@ -54,7 +54,7 @@ agent = MADDPG(state_dims=state_dim,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
-episodes = 7000
+episodes = 5000
 max_steps = 10
 epsilon = 1.0
 eps_end = 0.01
@@ -98,7 +98,7 @@ for ep in range(episodes):
         state = next_state
 
         # Stop episode if any agents have terminated
-        # if any(done):
+        # if any(truncation.values()) or any(termination.values()):
         #     break
 
     # Save the total episode reward
