@@ -11,11 +11,9 @@ state = env.reset()
 
 for i in range(10):
     print("Step:", i)
-    if any([c.is_bad_traffic_condition for c in env.commands]):
-        print(state)
     for v in env.vehicles:
-        if v.hydrogen == 0:
-            print("Vehicle:", v.name, "Hydrogen Level:", v.hydrogen) 
+        if v.remaining_working_time == 0:
+            print("Vehicle:", v.name, "Done:", done) 
     state, reward, done = env.step([[0.1, 0.9, 0.1], [0.1, 0.9, 0.1], [0.1, 0.9, 0.1]])
     # for c in env.commands:
     #     print("Command", c.name, "Weights:", c.weights)

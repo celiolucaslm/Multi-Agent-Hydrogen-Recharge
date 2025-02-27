@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
 
 # Set the default parameters for running the environment simulation
 seed = 42
@@ -50,17 +51,18 @@ agent = MADDPG(state_dims=state_dim,
                 discrete_actions=discrete_actions,
                 device=device,
                 learn_step=5,
-                batch_size=512,
+                batch_size=128,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
-episodes = 10000
-max_steps = 10
+episodes = 20000
+max_steps = 15
 epsilon = 1.0
 eps_end = 0.01
 eps_decay = 0.995
 avg_after_episodes = 200
 
+start_time = time.time()
 
 for ep in range(episodes):
     state = env.reset() # Reset environment at start of episode
@@ -114,6 +116,10 @@ for ep in range(episodes):
     if ep % avg_after_episodes == 0 and ep != 0:
         avg_last_200 = np.mean(agent.scores)
         print(f'Episode: {ep}, Average Reward: {avg_last_200}')
+
+end_time = time.time()
+
+print(f'Training Time: {(end_time - start_time) / 60} minutes')
 
 # ---------------------------------------------------------------------------
 
@@ -171,7 +177,7 @@ plt.grid(True)
 plt.show()
 
 # Show the table of descriptive statistics of average rewards
-pd.Series(avg_rewards).describe()
+print(pd.Series(avg_rewards).describe())
 
 # Save the built algorithm
 checkpoint_path = "maddpg_agent"

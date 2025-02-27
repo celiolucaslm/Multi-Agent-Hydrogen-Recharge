@@ -7,7 +7,7 @@ from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 
 # Set the default parameters for running the environment simulation
 seed = 30
-num_vehicles = 5
+num_vehicles = 8
 
 # ---------------------------------------------------------------------
 
@@ -24,8 +24,8 @@ num_commands_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define the parameters for testing the algorithm
-episodes = 10000
-max_steps = 10
+episodes = 20000
+max_steps = 15
 avg_after_episodes = 200
 
 for ep in range(episodes):

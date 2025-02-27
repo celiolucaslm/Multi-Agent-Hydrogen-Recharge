@@ -10,7 +10,7 @@ from pettingzoo import ParallelEnv
 # -----------------------------------------------------------------------
 # Constants variables of the environment
 # -----------------------------------------------------------------------	
-MIN_HYDROGEN = 50
+MIN_HYDROGEN = 80
 MAX_HYDROGEN = 5000
 QUANTITY_OF_HYDROGEN_CONSUMPTION_PER_MINUTE = 80
 
@@ -63,13 +63,32 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.action_space = spaces.Box(low=0, high=1, shape=(self.num_vehicles, 3), dtype=np.float32)
 
         # Initialization of vehicles information
-        self.vehicles = [Vehicle(f'V{i+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), np.random.choice(np.arange(MIN_HYDROGEN, MAX_HYDROGEN, 50)), np.random.choice(np.arange(MIN_WORKING_TIME, MAX_WORKING_TIME, 10)), np.random.choice(np.arange(MIN_QUALITY_OF_SERVICE, MAX_QUALITY_OF_SERVICE, 1)), int(BAD_TRAFFIC_CONDITION), np.ones(3) / 3) for i in range(num_vehicles)]
+        self.vehicles = self._initialize_vehicles()
 
         # Initialization of commands information
-        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), np.random.choice(np.arange(MIN_PRICE, MAX_PRICE, 5)), np.random.choice(np.arange(MIN_DURATION, MAX_DURATION, 1)), int(BAD_TRAFFIC_CONDITION)) for j in range(self.num_commands)]
+        self.commands = self._initialize_commands()
 
         # Initialization of the AssignmentsVehicle class
-        self.match_assignments_vehicule = AssignmentsVehicle(self.commands, self.vehicles)
+        self.match_assignments_vehicle = AssignmentsVehicle(self.commands, self.vehicles)
+
+    # Initialize the vehicles
+    def _initialize_vehicles(self):
+        return [Vehicle(
+            f'V{i+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), 
+                        np.random.choice(np.arange(MIN_HYDROGEN, MAX_HYDROGEN, 50)), 
+                        np.random.choice(np.arange(MIN_WORKING_TIME, MAX_WORKING_TIME, 10)), 
+                        np.random.choice(np.arange(MIN_QUALITY_OF_SERVICE, MAX_QUALITY_OF_SERVICE, 1)), 
+                        int(BAD_TRAFFIC_CONDITION), np.ones(3) / 3) 
+                        for i in range(self.num_vehicles)]
+
+    # Initialize the commands
+    def _initialize_commands(self):
+        return [Command(
+            f'C{j+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), 
+            np.random.choice(np.arange(MIN_PRICE, MAX_PRICE, 5)), 
+            np.random.choice(np.arange(MIN_DURATION, MAX_DURATION, 1)), 
+            int(BAD_TRAFFIC_CONDITION)) 
+            for j in range(self.num_commands)]
 
     # Define the condition of traffic for a vehilce or command based on the position
     def is_bad_traffic_area(self, position):
@@ -112,13 +131,13 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         # Calculate distances from this vehicle to each command
         distances = np.zeros(self.max_commands)
-        for j, command in enumerate(self.commands):
-            distances[j] = calculate_distance(vehicle.position, command.position) / MAX_DISTANCE
+        for j, c in enumerate(self.commands):
+            distances[j] = calculate_distance(vehicle.position, c.position) / MAX_DISTANCE
 
         # Get command weights and fill with zero value for non-existing commands
         command_weights = np.full((self.max_commands, 4), 0.)
-        for j, command in enumerate(self.commands):
-            command_weights[j] = command.weights
+        for j, c in enumerate(self.commands):
+            command_weights[j] = c.weights
 
         # Concatenate all observations into a single one-dimensional vector
         observation = np.concatenate([
@@ -145,31 +164,31 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.num_commands = np.random.poisson(lam=self.num_vehicles)
 
         # Reset of commands information
-        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), np.random.choice(np.arange(MIN_PRICE, MAX_PRICE, 5)), np.random.choice(np.arange(MIN_DURATION, MAX_DURATION, 1)), int(BAD_TRAFFIC_CONDITION)) for j in range(self.num_commands)]
+        self.commands = self._initialize_commands()
 
         # Update the weights of the commands
-        for command in self.commands:
-            command.weights = np.random.rand(4)
+        for c in self.commands:
+            c.weights = np.random.rand(4)
 
         # Update the traffic condition for each command
-        for command in self.commands:
-            command.is_bad_traffic_condition = self.is_bad_traffic_area(command.position)
+        for c in self.commands:
+            c.is_bad_traffic_condition = self.is_bad_traffic_area(c.position)
 
         # Reset of vehicles information
-        self.vehicles = [Vehicle(f'V{i+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), np.random.choice(np.arange(MIN_HYDROGEN, MAX_HYDROGEN, 50)), np.random.choice(np.arange(MIN_WORKING_TIME, MAX_WORKING_TIME, 10)), np.random.choice(np.arange(MIN_QUALITY_OF_SERVICE, MAX_QUALITY_OF_SERVICE, 1)), int(BAD_TRAFFIC_CONDITION), np.ones(3) / 3) for i in range(self.num_vehicles)]
+        self.vehicles = self._initialize_vehicles()
 
         # Update the traffic condition for each vehicle
-        for vehicle in self.vehicles:
-            vehicle.is_bad_traffic_condition = self.is_bad_traffic_area(vehicle.position)
+        for v in self.vehicles:
+            v.is_bad_traffic_condition = self.is_bad_traffic_area(v.position)
 
         # Reset the assignments
-        self.match_assignments_vehicule.reset()
+        self.match_assignments_vehicle.reset()
 
         # Reset preferences (vehicles and commands)
-        for vehicle in self.vehicles:
-            vehicle.preference = []
-        for command in self.commands:
-            command.preference = []
+        for v in self.vehicles:
+            v.preference = []
+        for c in self.commands:
+            c.preference = []
 
         observations = {}
         for i in range(len(self.vehicles)):
@@ -179,38 +198,38 @@ class MultiHydrogenRecharge(ParallelEnv):
 
     def step(self, actions):
         # Update vehicle weights according to action taken
-        for i, vehicle in enumerate(self.vehicles):
-            vehicle.weights = actions[i]
+        for i, v in enumerate(self.vehicles):
+            v.weights = actions[i]
 
         # Updates the preference of each vehicle and order with name and Score
-        for vehicule in self.vehicles:
-            for commande in self.commands:
-                score = calculate_vehicle_score(commande, vehicule.weights, vehicule.position)
-                vehicule.preference.append((commande.name, score))
+        for v in self.vehicles:
+            for c in self.commands:
+                score = calculate_vehicle_score(c, v.weights, v.position)
+                v.preference.append((c.name, score))
 
         # Updates the preference of each command and order with name and Score
-        for commande in self.commands:
-            for vehicule in self.vehicles:
-                score = calculate_command_score(vehicule, commande.weights, commande.position)
-                commande.preference.append((vehicule.name, score))
+        for c in self.commands:
+            for v in self.vehicles:
+                score = calculate_command_score(v, c.weights, c.position)
+                c.preference.append((v.name, score))
 
         # Rank the preference of each vehicle and order according to score
-        for vehicule in self.vehicles:
-            vehicule.preference.sort(key=lambda x: x[1], reverse=True)
+        for v in self.vehicles:
+            v.preference.sort(key=lambda x: x[1], reverse=True)
 
         # Rank the preference of each command and order according to score
-        for commande in self.commands:
-            commande.preference.sort(key=lambda x: x[1], reverse=True)
+        for c in self.commands:
+            c.preference.sort(key=lambda x: x[1], reverse=True)
 
         # Get the list of available vehicles
         vehicles_for_assigment = []
-        for vehicle in self.vehicles:
-            if not vehicle.is_matched and vehicle.hydrogen > 0:
-                vehicles_for_assigment.append(vehicle)
+        for v in self.vehicles:
+            if not v.is_matched and v.hydrogen > 0 and v.remaining_working_time > 0:
+                vehicles_for_assigment.append(v)
 
         # Match vehicles with commands
-        self.match_assignments_vehicule = AssignmentsVehicle(list(self.commands), vehicles_for_assigment)
-        assignments_vehicule = self.match_assignments_vehicule.match()
+        self.match_assignments_vehicle = AssignmentsVehicle(list(self.commands), vehicles_for_assigment)
+        assignments_vehicle = self.match_assignments_vehicle.match()
 
         # for c in self.commands:
         #     print(f'Preference of the Command {c.name}:', c.preference)
@@ -218,7 +237,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         # for v in self.vehicles:
         #     print(f'Preference of the Vehicle {v.name}:', v.preference)   
 
-        #print('Assignments:', assignments_vehicule)
+        #print('Assignments:', assignments_vehicle)
 
         # for v in self.vehicles:
         #     distances = [calculate_distance(v.position, c.position) for c in self.commands]
@@ -226,13 +245,13 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         # Reward calculation for each vehicle
         rewards = []
-        for i, vehicule in enumerate(self.vehicles):
+        for i, v in enumerate(self.vehicles):
             # Check if the vehicle has a preference
-            if vehicule.preference and vehicule.job is not None:
+            if v.preference and v.job is not None:
                 # Iterate over the list of preferences to find the position of the current reward
                 current_preference_position = None
-                for j, (cmd_name, score) in enumerate(vehicule.preference):
-                    if vehicule.job is not None and cmd_name == vehicule.job.name:
+                for j, (cmd_name, score) in enumerate(v.preference):
+                    if v.job is not None and cmd_name == v.job.name:
                         current_preference_position = j
                         break
 
@@ -248,50 +267,53 @@ class MultiHydrogenRecharge(ParallelEnv):
             else:
                 rewards.append(0)  # If there is no preference
 
-        # Vehicles pick up the command position and update the traffic condition
-        for vehicule in self.vehicles:
-            if vehicule.job is not None:
-                vehicule.position = vehicule.job.position
-                vehicle.is_bad_traffic_condition = self.is_bad_traffic_area(vehicle.position)
+        # Vehicles pick up the command position, update the traffic condition, quantity of hydrogen, and remaining working time
+        for v in self.vehicles:
+            if v.job is not None:
+                v.position = v.job.position
+                v.is_bad_traffic_condition = self.is_bad_traffic_area(v.position)
+                v.remaining_working_time -= v.job.duration
+                if v.remaining_working_time < 0:
+                    v.remaining_working_time = 0
 
         # Vehicles lose hydrogen after a service (does not go less than level 0)
-        for vehicule in self.vehicles:
-            if vehicule.job is not None:
-                vehicule.hydrogen -= vehicule.job.duration * QUANTITY_OF_HYDROGEN_CONSUMPTION_PER_MINUTE  # 80 is the hydrogen consumption rate (80 units per minute)
-                if vehicule.hydrogen < 0:
-                    vehicule.hydrogen = 0
+        for v in self.vehicles:
+            if v.job is not None:
+                v.hydrogen -= v.job.duration * QUANTITY_OF_HYDROGEN_CONSUMPTION_PER_MINUTE  # 80 is the hydrogen consumption rate (80 units per minute)
+                if v.hydrogen < 0:
+                    v.hydrogen = 0
 
         # Vehicles are not avaliable for a new job if the duration is greater than 10 minutes in the next step
-        for vehicle in self.vehicles:
-            if vehicle.job is not None and vehicle.job.duration > TIME_LIMIT_FOR_THE_VEHICLE_NOT_TO_BE_DEACTIVATED:
-                vehicle.is_matched = True
+        for v in self.vehicles:
+            if v.job is not None and v.job.duration > TIME_LIMIT_FOR_THE_VEHICLE_NOT_TO_BE_DEACTIVATED:
+                v.is_matched = True
             else:
-                vehicle.is_matched = False
+                v.is_matched = False
 
         # Set the number of commands for the next step
         self.num_commands = np.random.poisson(lam=self.num_vehicles)
 
         # Create commands with different information for the next step
-        self.commands = [Command(f'C{j+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), np.random.choice(np.arange(MIN_PRICE, MAX_PRICE, 5)), np.random.choice(np.arange(MIN_DURATION, MAX_DURATION, 1)), int(BAD_TRAFFIC_CONDITION)) for j in range(self.num_commands)]
+        self.commands = self._initialize_commands()
 
         # Update the traffic condition for each command
         for c in self.commands:
             c.is_bad_traffic_condition = self.is_bad_traffic_area(c.position)
 
         # Update the weights of the commands
-        for command in self.commands:
-            command.weights = np.random.rand(4)
+        for c in self.commands:
+            c.weights = np.random.rand(4)
 
-        done = {i: True if v.hydrogen <= 0 else False for i, v in enumerate(self.vehicles)} # If a vehicle runs out of hydrogen, the episode ends for it
+        done = {i: True if v.hydrogen <= 0 or v.remaining_working_time <= 0 else False for i, v in enumerate(self.vehicles)} # If a vehicle runs out of hydrogen or its remaining working time is over, the episode ends for it
 
         # Reset preferences (vehicles and commands)
-        for vehicle in self.vehicles:
-            vehicle.preference = []
-        for command in self.commands:
-            command.preference = []
+        for v in self.vehicles:
+            v.preference = []
+        for c in self.commands:
+            c.preference = []
 
         # Reset the assignments
-        self.match_assignments_vehicule.reset()
+        self.match_assignments_vehicle.reset()
 
         observations = {}
         for i in range(len(self.vehicles)):

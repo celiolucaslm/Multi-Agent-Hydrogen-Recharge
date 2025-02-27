@@ -14,8 +14,8 @@ np.random.seed(seed)
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Defines the test parameters for the environment's random actions
-num_episodes = 10000
-max_steps = 10
+num_episodes = 20000
+max_steps = 15
 avg_after_episodes = 200
 
 # Stores the rewards
@@ -80,16 +80,6 @@ ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episode
                  np.array(avg_rewards) + np.array(std_rewards),
                  color=color, alpha=0.2)
 ax1.tick_params(axis='y', labelcolor=color)
-
-
-# # Plot the graph of reward averages
-# plt.figure(figsize=(14, 6))
-# plt.plot(range(avg_after_episodes, total_episodes + avg_after_episodes, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
-# plt.xlabel('Episodes')
-# plt.ylabel('Reward Average')
-# plt.title('Average Reward Over Episodes For Random Actions')
-# plt.grid(True)
-# plt.show()
 
 # Show the table of descriptive statistics of average rewards
 pd.Series(avg_rewards).describe()
