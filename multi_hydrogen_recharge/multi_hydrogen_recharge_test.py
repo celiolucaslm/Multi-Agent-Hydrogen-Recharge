@@ -24,7 +24,11 @@ num_commands_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define the parameters for testing the algorithm
+<<<<<<< HEAD
 episodes = 10000
+=======
+episodes = 7000
+>>>>>>> 9e2f9fdc2c4b5a60b8241ac254a35c2ee9d090b9
 max_steps = 10
 avg_after_episodes = 200
 
