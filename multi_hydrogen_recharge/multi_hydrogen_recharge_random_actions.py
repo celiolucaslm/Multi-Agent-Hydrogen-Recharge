@@ -20,17 +20,20 @@ avg_after_episodes = 200
 
 # Stores the rewards
 reward_list = []
+num_steps_list = []
 
 # External loop for episodes
 for episode in range(num_episodes):
   env.reset()
   vehicle_rewards = {i: 0 for i in range(env.num_vehicles)}
 
+  num_steps = 0
+
   for step in range(max_steps):
       
     # Vehicles take random action
-    #actions = np.random.rand(env.num_vehicles, 3)
-    actions = np.array([[0., 1., 0.] for _ in range(env.num_vehicles)])	# Random actions
+    #actions = np.random.rand(env.num_vehicles, 4)
+    actions = np.array([[1., 0., 0., 0.] for _ in range(env.num_vehicles)])	# Random actions
 
     # Execute the action and take the next observation, reward and done (terminal state)
     observation, rewards, done = env.step(actions)
@@ -38,6 +41,8 @@ for episode in range(num_episodes):
     # After the end of the episode, keep the vehicle rewards
     for i, reward in enumerate(rewards):
         vehicle_rewards[i] += reward
+
+    num_steps += 1
     
     # Stop episode if all agents have terminated
     if all(done.values()):
@@ -45,6 +50,7 @@ for episode in range(num_episodes):
 
   score = sum(vehicle_rewards.values())
   reward_list.append(score)
+  num_steps_list.append(num_steps)
   print('Actual Episode', episode, '/ Reward: ', score)
 
   # Print average reward of the last 200 episodes
@@ -81,5 +87,9 @@ ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episode
                  color=color, alpha=0.2)
 ax1.tick_params(axis='y', labelcolor=color)
 
+print('Descriptive statistics of the number of steps')
+print(pd.Series(num_steps_list).describe())
+
 # Show the table of descriptive statistics of average rewards
-pd.Series(avg_rewards).describe()
+print('Descriptive statistics of average rewards')
+print(pd.Series(avg_rewards).describe())

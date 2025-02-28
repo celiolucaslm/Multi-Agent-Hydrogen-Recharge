@@ -60,7 +60,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.num_commands = num_commands if num_commands is not None else np.random.poisson(lam=num_vehicles)
 
         # Defining the action space
-        self.action_space = spaces.Box(low=0, high=1, shape=(self.num_vehicles, 3), dtype=np.float32)
+        self.action_space = spaces.Box(low=0, high=1, shape=(self.num_vehicles, 4), dtype=np.float32)
 
         # Initialization of vehicles information
         self.vehicles = self._initialize_vehicles()
@@ -75,11 +75,11 @@ class MultiHydrogenRecharge(ParallelEnv):
     def _initialize_vehicles(self):
         return [Vehicle(
             f'V{i+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), 
-                        np.random.choice(np.arange(MIN_HYDROGEN, MAX_HYDROGEN, 50)), 
-                        np.random.choice(np.arange(MIN_WORKING_TIME, MAX_WORKING_TIME, 10)), 
-                        np.random.choice(np.arange(MIN_QUALITY_OF_SERVICE, MAX_QUALITY_OF_SERVICE, 1)), 
-                        int(BAD_TRAFFIC_CONDITION), np.ones(3) / 3) 
-                        for i in range(self.num_vehicles)]
+            np.random.choice(np.arange(MIN_HYDROGEN, MAX_HYDROGEN, 50)), 
+            np.random.choice(np.arange(MIN_WORKING_TIME, MAX_WORKING_TIME, 10)), 
+            np.random.choice(np.arange(MIN_QUALITY_OF_SERVICE, MAX_QUALITY_OF_SERVICE, 1)), 
+            int(BAD_TRAFFIC_CONDITION), np.ones(4) / 4) 
+            for i in range(self.num_vehicles)]
 
     # Initialize the commands
     def _initialize_commands(self):
@@ -87,8 +87,9 @@ class MultiHydrogenRecharge(ParallelEnv):
             f'C{j+1}', np.random.choice(np.arange(MIN_GRID_SIZE, MAX_GRID_SIZE, 1), size=2), 
             np.random.choice(np.arange(MIN_PRICE, MAX_PRICE, 5)), 
             np.random.choice(np.arange(MIN_DURATION, MAX_DURATION, 1)), 
-            int(BAD_TRAFFIC_CONDITION)) 
-            for j in range(self.num_commands)]
+            int(BAD_TRAFFIC_CONDITION),
+            np.random.choice([0, 1])
+        ) for j in range(self.num_commands)]
 
     # Define the condition of traffic for a vehilce or command based on the position
     def is_bad_traffic_area(self, position):
@@ -96,7 +97,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         if START_OF_AREA_WITH_BAD_TRAFFIC <= x <= END_OF_AREA_WITH_BAD_TRAFFIC and START_OF_AREA_WITH_BAD_TRAFFIC <= y <= END_OF_AREA_WITH_BAD_TRAFFIC:
             return True
         else:
-            return False 
+            return False
 
     # Define the observation space of a vehicle
     def _get_observation(self, vehicle_index):
@@ -122,6 +123,9 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         command_traffic_condition = np.zeros(self.max_commands)
         command_traffic_condition[:self.num_commands] = np.array([int(command.is_bad_traffic_condition) for command in self.commands])
+
+        command_urgency = np.zeros(self.max_commands)
+        command_urgency[:self.num_commands] = np.array([command.urgency for command in self.commands])
 
         num_commands = np.array([self.num_commands / self.max_commands])
 
@@ -231,41 +235,19 @@ class MultiHydrogenRecharge(ParallelEnv):
         self.match_assignments_vehicle = AssignmentsVehicle(list(self.commands), vehicles_for_assigment)
         assignments_vehicle = self.match_assignments_vehicle.match()
 
-        # for c in self.commands:
-        #     print(f'Preference of the Command {c.name}:', c.preference)
-        
-        # for v in self.vehicles:
-        #     print(f'Preference of the Vehicle {v.name}:', v.preference)   
-
-        #print('Assignments:', assignments_vehicle)
-
-        # for v in self.vehicles:
-        #     distances = [calculate_distance(v.position, c.position) for c in self.commands]
-        #     print(f'Vehicle {v.name}: Distances to commands - {distances}, Hydrogen - {v.hydrogen}, Remaining Working Time - {v.remaining_working_time}, Quality of Service - {v.quality_of_service}')
-
         # Reward calculation for each vehicle
         rewards = []
         for i, v in enumerate(self.vehicles):
-            # Check if the vehicle has a preference
-            if v.preference and v.job is not None:
-                # Iterate over the list of preferences to find the position of the current reward
-                current_preference_position = None
-                for j, (cmd_name, score) in enumerate(v.preference):
-                    if v.job is not None and cmd_name == v.job.name:
-                        current_preference_position = j
+            # Check if the vehicle has a job assigned
+            if v.job is not None:
+                # Find the score for the matched command
+                for cmd_name, score in v.preference:
+                    if cmd_name == v.job.name:
+                        #print(f"Vehicle {v.name} matched with command {v.job.name} with score {score}")
+                        rewards.append(score)
                         break
-
-                # Assigns the reward based on the position in the preferences list
-                if current_preference_position == 0:
-                    rewards.append(10)  # If it's the favorite
-                elif current_preference_position == 1:
-                    rewards.append(5)   # If it's the second most preferred
-                elif current_preference_position == 2:
-                    rewards.append(0)   # If it's the third most preferred
-                else:
-                    rewards.append(-15)  # Other cases (less preferred)
             else:
-                rewards.append(0)  # If there is no preference
+                rewards.append(0)  # If there is no job assigned
 
         # Vehicles pick up the command position, update the traffic condition, quantity of hydrogen, and remaining working time
         for v in self.vehicles:
@@ -283,7 +265,7 @@ class MultiHydrogenRecharge(ParallelEnv):
                 if v.hydrogen < 0:
                     v.hydrogen = 0
 
-        # Vehicles are not avaliable for a new job if the duration is greater than 10 minutes in the next step
+        # Vehicles are not available for a new job if the duration is greater than 10 minutes in the next step
         for v in self.vehicles:
             if v.job is not None and v.job.duration > TIME_LIMIT_FOR_THE_VEHICLE_NOT_TO_BE_DEACTIVATED:
                 v.is_matched = True
@@ -304,7 +286,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         for c in self.commands:
             c.weights = np.random.rand(4)
 
-        done = {i: True if v.hydrogen <= 0 or v.remaining_working_time <= 0 else False for i, v in enumerate(self.vehicles)} # If a vehicle runs out of hydrogen or its remaining working time is over, the episode ends for it
+        done = {i: True if v.hydrogen <= 0 or v.remaining_working_time <= 0 else False for i, v in enumerate(self.vehicles)}  # If a vehicle runs out of hydrogen or its remaining working time is over, the episode ends for it
 
         # Reset preferences (vehicles and commands)
         for v in self.vehicles:
@@ -322,6 +304,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         # Return the current observation, reward, and done status
         return observations, rewards, done
 
+
 # -----------------------------------------------------------------------
 # Auxiliary functions
 # -----------------------------------------------------------------------
@@ -335,13 +318,17 @@ def calculate_vehicle_score(command, weights, position):
     normalized_distance = calculate_distance(command.position, position) / MAX_DISTANCE
     normalized_duration = command.duration / MAX_DURATION
 
+    # If the weight is zero, it is replaced by 1, otherwise it is multiplied by 2
+    weights = np.where(weights == 0, 1, weights + 1)
+
     # If the traffic condition is bad, the distance is multiplied by 1.5 (mean velocity decrease by 50%)
-    if traffic_condition == True:
-        score = ((normalized_price * weights[0])) - (DISTANCE_RATE_IF_BAD_TRAFFIC * normalized_distance * weights[1]) - (normalized_duration * weights[2])
+    if traffic_condition:
+        score = ((normalized_price * weights[0]) - (DISTANCE_RATE_IF_BAD_TRAFFIC * normalized_distance * weights[1]) - (normalized_duration * weights[2]) + (command.urgency * weights[3]))
     else:
-        score = ((normalized_price * weights[0])) - (normalized_distance * weights[1]) - (normalized_duration * weights[2])
+        score = ((normalized_price * weights[0]) - (normalized_distance * weights[1]) - (normalized_duration * weights[2]) + (command.urgency * weights[3]))
     
     return score
+
 
 def calculate_command_score(vehicle, weights, position):
     # Normalize each attribute
