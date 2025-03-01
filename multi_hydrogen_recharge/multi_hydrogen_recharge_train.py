@@ -149,7 +149,7 @@ plt.figure(figsize=(14, 6))
 plt.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
 plt.xlabel('Épisodes')
 plt.ylabel('Récompense Moyenne')
-plt.title("Récompense Moyenne Au Cours Des Épisodes Pour Entraîner L'Algorithme")
+plt.title("Récompense Moyenne au Cours des Épisodes pour Entraîner l'Algorithme")
 plt.grid(True)
 plt.show()
 
@@ -157,22 +157,22 @@ plt.show()
 fig, ax1 = plt.subplots(figsize=(14, 6))
 
 # Y-axis for epsilon
-ax1.set_xlabel('Episodes')
+ax1.set_xlabel('Épisodes')
 ax1.set_ylabel('Epsilon', color='blue')
 line1, = ax1.plot(eps, eps_values, color='blue', linestyle='--', label='Epsilon') 
 ax1.tick_params(axis='y', labelcolor='blue')
 
 # Y-axis for average rewards
 ax2 = ax1.twinx()
-ax2.set_ylabel('Average Reward', color='black')
+ax2.set_ylabel('Récompense Moyenne', color='black')
 line2, = ax2.plot(range(avg_after_episodes, episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black', label='Average Reward')
 ax2.tick_params(axis='y', labelcolor='black')
 
-ax1.legend(loc='upper left', bbox_to_anchor=(0.8, 0.8))
-ax2.legend(loc='upper left', bbox_to_anchor=(0.8, 0.75))
+ax1.legend(loc='upper left', bbox_to_anchor=(0.8, 0.85))
+ax2.legend(loc='upper left', bbox_to_anchor=(0.8, 0.8))
 
 fig.tight_layout()
-plt.title("Epsilon Value and Average Reward Over Episodes To Train The Algorithm")
+plt.title("Valeur d'Epsilon et Récompense Moyenne au Cours des Épisodes pour Entraîner l'Algorithme")
 plt.grid(True)
 plt.show()
 

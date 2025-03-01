@@ -25,7 +25,7 @@ num_steps_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define the parameters for testing the algorithm
-episodes = 200
+episodes = 20000
 max_steps = 15
 avg_after_episodes = 200
 
@@ -97,8 +97,8 @@ std_rewards = np.std(avg_rewards)
 fig, ax1 = plt.subplots(figsize=(14, 6))
 
 color = 'tab:blue'
-ax1.set_xlabel('Episodes')
-ax1.set_ylabel('Reward Average', color=color)
+ax1.set_xlabel('Épisodes')
+ax1.set_ylabel('Moyenne des Récompenses', color=color)
 ax1.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color=color)
 ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episodes),
                  np.array(avg_rewards) - np.array(std_rewards),
@@ -106,24 +106,23 @@ ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episode
                  color=color, alpha=0.2)
 ax1.tick_params(axis='y', labelcolor=color)
 
-plt.title("Average Reward Over Episodes To Test The Algorithm")
+plt.title("Moyenne des Récompenses au Cours des Épisodes pour Tester l'Algorithme")
 fig.tight_layout()
-plt.grid(True)
 plt.show()
 
-# Plot the graph of number of commands
+# Graphique du nombre de commandes
 fig, ax2 = plt.subplots(figsize=(30, 12))
 
 color = 'tab:red'
-ax2.set_xlabel('Steps')
-ax2.set_ylabel('Number of Commands', color=color)
+ax2.set_xlabel('Étapes', fontsize=14)
+ax2.set_ylabel('Nombre de Commandes', color=color, fontsize=14)
 ax2.plot(range(1, 100 + 1), num_commands_list[:100], marker='x', linestyle='--', color=color)
-ax2.axhline(y=num_vehicles, color='green', linestyle='-', label='Number of Vehicles')
+ax2.axhline(y=num_vehicles, color='green', linestyle='-', label='Nombre de Véhicules')
+ax2.legend(fontsize=14)
 ax2.tick_params(axis='y', labelcolor=color)
 
-plt.title("Number of Commands Over The First 5 Episodes To Test The Algorithm")
+plt.title("Nombre de Commandes au Cours des 5 Premiers Épisodes pour Tester l'Algorithme", fontsize=16)
 fig.tight_layout()
-plt.grid(True)
 plt.legend()
 plt.show()
 

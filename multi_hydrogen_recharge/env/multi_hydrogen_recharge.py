@@ -318,9 +318,6 @@ def calculate_vehicle_score(command, weights, position):
     normalized_distance = calculate_distance(command.position, position) / MAX_DISTANCE
     normalized_duration = command.duration / MAX_DURATION
 
-    # If the weight is zero, it is replaced by 1, otherwise it is multiplied by 2
-    weights = np.where(weights == 0, 1, weights + 1)
-
     # If the traffic condition is bad, the distance is multiplied by 1.5 (mean velocity decrease by 50%)
     if traffic_condition:
         score = ((normalized_price * weights[0]) - (DISTANCE_RATE_IF_BAD_TRAFFIC * normalized_distance * weights[1]) - (normalized_duration * weights[2]) + (command.urgency * weights[3]))

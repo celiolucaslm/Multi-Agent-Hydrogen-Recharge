@@ -32,8 +32,8 @@ for episode in range(num_episodes):
   for step in range(max_steps):
       
     # Vehicles take random action
-    #actions = np.random.rand(env.num_vehicles, 4)
-    actions = np.array([[1., 0., 0., 0.] for _ in range(env.num_vehicles)])	# Random actions
+    actions = np.random.rand(env.num_vehicles, 4) # Random actions
+    #actions = np.array([[1., 0., 0., 0.] for _ in range(env.num_vehicles)])
 
     # Execute the action and take the next observation, reward and done (terminal state)
     observation, rewards, done = env.step(actions)
@@ -78,14 +78,18 @@ std_rewards = np.std(avg_rewards)
 fig, ax1 = plt.subplots(figsize=(14, 6))
 
 color = 'tab:blue'
-ax1.set_xlabel('Episodes')
-ax1.set_ylabel('Reward Average', color=color)
+ax1.set_xlabel('Épisodes')
+ax1.set_ylabel('Moyenne des Récompenses', color=color)
 ax1.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color=color)
 ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episodes),
                  np.array(avg_rewards) - np.array(std_rewards),
                  np.array(avg_rewards) + np.array(std_rewards),
                  color=color, alpha=0.2)
 ax1.tick_params(axis='y', labelcolor=color)
+
+plt.title("Moyenne des Récompenses au Cours des Épisodes pour Actions Aléatoires")
+fig.tight_layout()
+plt.show()
 
 print('Descriptive statistics of the number of steps')
 print(pd.Series(num_steps_list).describe())
