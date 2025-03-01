@@ -56,7 +56,7 @@ agent = MADDPG(state_dims=state_dim,
 
 # Define the algorithm's training parameters
 episodes = 20000
-max_steps = 15
+max_steps = 20
 epsilon = 1.0
 eps_end = 0.01
 eps_decay = 0.995
@@ -165,7 +165,7 @@ ax1.tick_params(axis='y', labelcolor='blue')
 # Y-axis for average rewards
 ax2 = ax1.twinx()
 ax2.set_ylabel('Récompense Moyenne', color='black')
-line2, = ax2.plot(range(avg_after_episodes, episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black', label='Average Reward')
+line2, = ax2.plot(range(avg_after_episodes, episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black', label='Récompense Moyenne')
 ax2.tick_params(axis='y', labelcolor='black')
 
 ax1.legend(loc='upper left', bbox_to_anchor=(0.8, 0.85))

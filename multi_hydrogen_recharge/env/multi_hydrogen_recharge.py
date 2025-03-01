@@ -228,26 +228,14 @@ class MultiHydrogenRecharge(ParallelEnv):
         # Get the list of available vehicles
         vehicles_for_assigment = []
         for v in self.vehicles:
-            if not v.is_matched and v.hydrogen > 0 and v.remaining_working_time > 0:
+            if not v.is_matched and v.hydrogen > 0 and v.remaining_working_time > 0 and v.weights.sum() >= 1:
                 vehicles_for_assigment.append(v)
 
         # Match vehicles with commands
         self.match_assignments_vehicle = AssignmentsVehicle(list(self.commands), vehicles_for_assigment)
         assignments_vehicle = self.match_assignments_vehicle.match()
 
-        # Reward calculation for each vehicle
-        rewards = []
-        for i, v in enumerate(self.vehicles):
-            # Check if the vehicle has a job assigned
-            if v.job is not None:
-                # Find the score for the matched command
-                for cmd_name, score in v.preference:
-                    if cmd_name == v.job.name:
-                        #print(f"Vehicle {v.name} matched with command {v.job.name} with score {score}")
-                        rewards.append(score)
-                        break
-            else:
-                rewards.append(0)  # If there is no job assigned
+        #print("Assigments: ", assignments_vehicle)
 
         # Vehicles pick up the command position, update the traffic condition, quantity of hydrogen, and remaining working time
         for v in self.vehicles:
@@ -271,6 +259,28 @@ class MultiHydrogenRecharge(ParallelEnv):
                 v.is_matched = True
             else:
                 v.is_matched = False
+
+        # Reward calculation for each vehicle
+        rewards = []
+        for i, v in enumerate(self.vehicles):
+            # Check if the vehicle has a job assigned
+            if v.job is not None and v.hydrogen > 0 and v.remaining_working_time > 0:
+                # Find the score for the matched command
+                for cmd_name, score in v.preference:
+                    if cmd_name == v.job.name:
+                        rewards.append(score)
+                        break
+            else:
+                if v.hydrogen <= 0 or v.remaining_working_time <= 0: 
+                    # If there is no job assigned, check if it's the first time the vehicle is done
+                    if not hasattr(v, 'received_negative_reward'):
+                        rewards.append(-5)  # Negative reward for the first time
+                        v.received_negative_reward = True  # Mark that the vehicle has received a negative reward
+                    else:
+                        rewards.append(0)  # Zero reward for subsequent times
+                
+                else:
+                        rewards.append(0)  # Zero reward for subsequent times
 
         # Set the number of commands for the next step
         self.num_commands = np.random.poisson(lam=self.num_vehicles)
@@ -303,7 +313,6 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         # Return the current observation, reward, and done status
         return observations, rewards, done
-
 
 # -----------------------------------------------------------------------
 # Auxiliary functions
