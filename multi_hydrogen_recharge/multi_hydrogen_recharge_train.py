@@ -9,7 +9,7 @@ import time
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 5
+num_vehicles = 8
 
 # -----------------------------------------------------------------------
 
