@@ -154,6 +154,7 @@ class MultiHydrogenRecharge(ParallelEnv):
             command_prices,
             command_duration,
             command_traffic_condition,
+            command_urgency,
             vehicle_matched,
             vehicle_bad_traffic_condition,
             command_weights.flatten()
@@ -237,19 +238,15 @@ class MultiHydrogenRecharge(ParallelEnv):
 
         #print("Assigments: ", assignments_vehicle)
 
-        # Vehicles pick up the command position, update the traffic condition, quantity of hydrogen, and remaining working time
+        # Vehicles pick up the command position, update the traffic condition, quantity of hydrogen and remaining working time
         for v in self.vehicles:
             if v.job is not None:
                 v.position = v.job.position
                 v.is_bad_traffic_condition = self.is_bad_traffic_area(v.position)
                 v.remaining_working_time -= v.job.duration
+                v.hydrogen -= v.job.duration * QUANTITY_OF_HYDROGEN_CONSUMPTION_PER_MINUTE  # 80 is the hydrogen consumption rate (80 units per minute)
                 if v.remaining_working_time < 0:
                     v.remaining_working_time = 0
-
-        # Vehicles lose hydrogen after a service (does not go less than level 0)
-        for v in self.vehicles:
-            if v.job is not None:
-                v.hydrogen -= v.job.duration * QUANTITY_OF_HYDROGEN_CONSUMPTION_PER_MINUTE  # 80 is the hydrogen consumption rate (80 units per minute)
                 if v.hydrogen < 0:
                     v.hydrogen = 0
 
@@ -263,7 +260,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         # Reward calculation for each vehicle
         rewards = []
         for i, v in enumerate(self.vehicles):
-            # Check if the vehicle has a job assigned
+            # Check if the vehicle has a job assigned and if it is not done
             if v.job is not None and v.hydrogen > 0 and v.remaining_working_time > 0:
                 # Find the score for the matched command
                 for cmd_name, score in v.preference:
@@ -280,7 +277,7 @@ class MultiHydrogenRecharge(ParallelEnv):
                         rewards.append(0)  # Zero reward for subsequent times
                 
                 else:
-                        rewards.append(0)  # Zero reward for subsequent times
+                        rewards.append(0)  # Zero reward if the vehicle does not have a command assigned
 
         # Set the number of commands for the next step
         self.num_commands = np.random.poisson(lam=self.num_vehicles)

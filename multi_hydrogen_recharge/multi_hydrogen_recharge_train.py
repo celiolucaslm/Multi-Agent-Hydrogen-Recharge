@@ -9,7 +9,7 @@ import time
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 8
+num_vehicles = 5
 
 # -----------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ agent = MADDPG(state_dims=state_dim,
                 discrete_actions=discrete_actions,
                 device=device,
                 learn_step=5,
-                batch_size=256,
+                batch_size=512,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
