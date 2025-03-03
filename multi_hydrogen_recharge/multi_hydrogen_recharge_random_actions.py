@@ -14,9 +14,9 @@ np.random.seed(seed)
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Defines the test parameters for the environment's random actions
-num_episodes = 20000
+num_episodes = 10000
 max_steps = 20
-avg_after_episodes = 200
+avg_after_episodes = 100
 
 # Stores the rewards
 reward_list = []
@@ -66,7 +66,7 @@ avg_rewards = []
 # Total number of episodes
 total_episodes = len(reward_list)
 
-for ep in range(200, total_episodes+1, avg_after_episodes):
+for ep in range(avg_after_episodes, total_episodes+1, avg_after_episodes):
     avg_last_200 = np.mean(reward_list[0:ep])
     avg_rewards.append(avg_last_200)
     print(f'Episode: {ep}, Average Reward: {avg_last_200}')

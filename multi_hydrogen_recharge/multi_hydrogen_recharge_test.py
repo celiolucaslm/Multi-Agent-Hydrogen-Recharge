@@ -14,7 +14,13 @@ num_vehicles = 5
 np.random.seed(seed)
 
 # Load the built algorithm
-checkpoint_path = "maddpg_agent"
+if num_vehicles == 5:
+    checkpoint_path = "maddpg_agent_5v"
+elif num_vehicles == 8:
+    checkpoint_path = "maddpg_agent_8v"
+else:
+    checkpoint_path = "maddpg_agent_12v"
+
 agent = MADDPG.load(checkpoint_path)
 
 # Stores the rewards and number of commands
@@ -25,9 +31,9 @@ num_steps_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define the parameters for testing the algorithm
-episodes = 20000
+episodes = 10000
 max_steps = 20
-avg_after_episodes = 200
+avg_after_episodes = 100
 
 for ep in range(episodes):
     state = env.reset() # Reset environment at start of episode
@@ -71,26 +77,26 @@ for ep in range(episodes):
 
     print('Actual Episode:', ep, '/ Reward:', score, '/ Number of Commands:', num_commands)
 
-    # Print average reward of the last 200 episodes
+    # Print average reward of the last 100 episodes
     if ep % avg_after_episodes == 0 and ep != 0:
-        avg_last_200 = np.mean(agent.scores)
-        print(f'Episode: {ep}, Average Reward: {avg_last_200}')
+        avg_last_100 = np.mean(agent.scores)
+        print(f'Episode: {ep}, Average Reward: {avg_last_100}')
 
 # ------------------------------------------------------------------------
 
-# List to store the average rewards and commands every 200 episodes
+# List to store the average rewards and commands every 100 episodes
 avg_rewards = []
 
 # Total number of episodes
 total_episodes = len(agent.scores)
 
-# Calculating average rewards and commands every 200 episodes
-for ep in range(200, total_episodes+1, avg_after_episodes):
-    avg_last_200_rewards = np.mean(agent.scores[0:ep])
-    avg_rewards.append(avg_last_200_rewards)
-    print(f'Episode: {ep}, Average Reward: {avg_last_200_rewards}')
+# Calculating average rewards and commands every 100 episodes
+for ep in range(100, total_episodes+1, avg_after_episodes):
+    avg_last_100_rewards = np.mean(agent.scores[0:ep])
+    avg_rewards.append(avg_last_100_rewards)
+    print(f'Episode: {ep}, Average Reward: {avg_last_100_rewards}')
 
-# Calculate the standard deviation of rewards every 200 episodes
+# Calculate the standard deviation of rewards every 100 episodes
 std_rewards = np.std(avg_rewards)
 
 # Plot the graph of reward averages with standard deviation
