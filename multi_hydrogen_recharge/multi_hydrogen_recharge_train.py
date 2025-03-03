@@ -56,7 +56,7 @@ agent = MADDPG(state_dims=state_dim,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
-episodes = 100
+episodes = 10000
 max_steps = 20
 epsilon = 1.0
 eps_end = 0.01
@@ -193,5 +193,5 @@ elif num_vehicles == 8:
     checkpoint_path = "maddpg_agent_8v"
 else:
     checkpoint_path = "maddpg_agent_12v"
-    
+
 agent.saveCheckpoint(checkpoint_path)
