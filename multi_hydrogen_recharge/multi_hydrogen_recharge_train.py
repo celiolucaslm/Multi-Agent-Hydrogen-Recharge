@@ -55,12 +55,12 @@ agent = MADDPG(state_dims=state_dim,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
-episodes = 20000
+episodes = 10000
 max_steps = 20
 epsilon = 1.0
 eps_end = 0.01
 eps_decay = 0.995
-avg_after_episodes = 200
+avg_after_episodes = 100
 
 start_time = time.time()
 
@@ -114,8 +114,8 @@ for ep in range(episodes):
 
     # Print average reward of the last 500 episodes
     if ep % avg_after_episodes == 0 and ep != 0:
-        avg_last_200 = np.mean(agent.scores)
-        print(f'Episode: {ep}, Average Reward: {avg_last_200}')
+        avg_last_100 = np.mean(agent.scores)
+        print(f'Episode: {ep}, Average Reward: {avg_last_100}')
 
 end_time = time.time()
 
@@ -123,7 +123,7 @@ print(f'Training Time: {(end_time - start_time) / 60} minutes')
 
 # ---------------------------------------------------------------------------
 
-# List to store the average rewards every 200 episodes
+# List to store the average rewards every 100 episodes
 avg_rewards = []
 
 # Collecting epsilon values every episode
@@ -138,11 +138,11 @@ for ep in range(episodes):
 # Total number of episodes
 total_episodes = len(agent.scores)
 
-# Calculating average rewards every 200 episodes
+# Calculating average rewards every 100 episodes
 for ep in range(avg_after_episodes, total_episodes+1, avg_after_episodes):
-    avg_last_200 = np.mean(agent.scores[0:ep])
-    avg_rewards.append(avg_last_200)
-    print(f'Episode: {ep}, Average Reward: {avg_last_200}')
+    avg_last_100 = np.mean(agent.scores[0:ep])
+    avg_rewards.append(avg_last_100)
+    print(f'Episode: {ep}, Average Reward: {avg_last_100}')
 
 # Plot the graph of reward averages
 plt.figure(figsize=(14, 6))
@@ -180,5 +180,5 @@ plt.show()
 print(pd.Series(avg_rewards).describe())
 
 # Save the built algorithm
-checkpoint_path = "maddpg_agent"
+checkpoint_path = "maddpg_agent_5v"
 agent.saveCheckpoint(checkpoint_path)

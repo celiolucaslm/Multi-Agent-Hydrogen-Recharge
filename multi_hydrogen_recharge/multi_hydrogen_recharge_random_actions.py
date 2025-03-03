@@ -5,7 +5,7 @@ import pandas as pd
 
 # Set the default parameters for running the environment simulation
 seed = 30
-num_vehicles = 8
+num_vehicles = 5
 
 # --------------------------------------------------------------------
 
