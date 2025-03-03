@@ -6,10 +6,11 @@ import torch
 import matplotlib.pyplot as plt
 import pandas as pd
 import time
+import os
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 5
+num_vehicles = 8
 
 # -----------------------------------------------------------------------
 
@@ -55,7 +56,7 @@ agent = MADDPG(state_dims=state_dim,
                 net_config=NET_CONFIG)
 
 # Define the algorithm's training parameters
-episodes = 10000
+episodes = 100
 max_steps = 20
 epsilon = 1.0
 eps_end = 0.01
@@ -144,6 +145,10 @@ for ep in range(avg_after_episodes, total_episodes+1, avg_after_episodes):
     avg_rewards.append(avg_last_100)
     print(f'Episode: {ep}, Average Reward: {avg_last_100}')
 
+# Create directory to save plots if it doesn't exist
+plot_dir = "plots"
+os.makedirs(plot_dir, exist_ok=True)
+
 # Plot the graph of reward averages
 plt.figure(figsize=(14, 6))
 plt.plot(range(avg_after_episodes, total_episodes + 1, avg_after_episodes), avg_rewards, marker='o', linestyle='-', color='black')
@@ -151,6 +156,7 @@ plt.xlabel('Épisodes')
 plt.ylabel('Récompense Moyenne')
 plt.title("Récompense Moyenne au Cours des Épisodes pour Entraîner l'Algorithme")
 plt.grid(True)
+plt.savefig(os.path.join(plot_dir, "average_rewards.png"))
 plt.show()
 
 # Generate the graph to compare epsilon and average rewards
@@ -174,11 +180,18 @@ ax2.legend(loc='upper left', bbox_to_anchor=(0.8, 0.8))
 fig.tight_layout()
 plt.title("Valeur d'Epsilon et Récompense Moyenne au Cours des Épisodes pour Entraîner l'Algorithme")
 plt.grid(True)
+plt.savefig(os.path.join(plot_dir, "epsilon_vs_rewards.png"))
 plt.show()
 
 # Show the table of descriptive statistics of average rewards
 print(pd.Series(avg_rewards).describe())
 
 # Save the built algorithm
-checkpoint_path = "maddpg_agent_5v"
+if num_vehicles == 5:
+    checkpoint_path = "maddpg_agent_5v"
+elif num_vehicles == 8:
+    checkpoint_path = "maddpg_agent_8v"
+else:
+    checkpoint_path = "maddpg_agent_12v"
+    
 agent.saveCheckpoint(checkpoint_path)
