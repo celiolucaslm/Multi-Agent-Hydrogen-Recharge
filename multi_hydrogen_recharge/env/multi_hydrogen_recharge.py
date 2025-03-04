@@ -9,7 +9,7 @@ from pettingzoo import ParallelEnv
 
 # -----------------------------------------------------------------------
 # Constants variables of the environment
-# -----------------------------------------------------------------------    
+# -----------------------------------------------------------------------	
 MIN_HYDROGEN = 80
 MAX_HYDROGEN = 5000
 QUANTITY_OF_HYDROGEN_CONSUMPTION_PER_MINUTE = 80
@@ -52,7 +52,6 @@ class MultiHydrogenRecharge(ParallelEnv):
         super().__init__()
 
         # Setting the seed
-        self.seed = seed
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)

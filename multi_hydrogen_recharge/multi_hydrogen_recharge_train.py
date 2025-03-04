@@ -12,6 +12,15 @@ import os
 seed = 42
 num_vehicles = 5
 
+if num_vehicles == 5:
+    checkpoint_path = "maddpg_agent_5v"
+elif num_vehicles == 8:
+    checkpoint_path = "maddpg_agent_8v"
+else:
+    checkpoint_path = "maddpg_agent_12v"
+
+agent = MADDPG.load(path=checkpoint_path)
+
 # -----------------------------------------------------------------------
 
 torch.manual_seed(seed)
