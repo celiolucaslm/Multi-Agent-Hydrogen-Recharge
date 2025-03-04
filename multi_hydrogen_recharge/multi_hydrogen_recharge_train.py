@@ -72,6 +72,14 @@ eps_end = 0.01
 eps_decay = 0.995
 avg_after_episodes = 100
 
+# Set the checkpoint path based on the number of vehicles
+if num_vehicles == 5:
+    checkpoint_path = "maddpg_agent_5v"
+elif num_vehicles == 8:
+    checkpoint_path = "maddpg_agent_8v"
+else:
+    checkpoint_path = "maddpg_agent_12v"
+
 start_time = time.time()
 
 for ep in range(episodes):
@@ -122,10 +130,13 @@ for ep in range(episodes):
 
     print('Actual Episode:', ep, '/ Reward:', score, '/ Epsilon:', epsilon)
 
-    # Print average reward of the last 500 episodes
+    # Print average reward of the last 100 episodes
     if ep % avg_after_episodes == 0 and ep != 0:
         avg_last_100 = np.mean(agent.scores)
         print(f'Episode: {ep}, Average Reward: {avg_last_100}')
+
+    if ep % 2000 == 0:
+        agent.saveCheckpoint(checkpoint_path)
 
 end_time = time.time()
 
@@ -195,12 +206,5 @@ plt.show()
 # Show the table of descriptive statistics of average rewards
 print(pd.Series(avg_rewards).describe())
 
-# Save the built algorithm
-if num_vehicles == 5:
-    checkpoint_path = "maddpg_agent_5v"
-elif num_vehicles == 8:
-    checkpoint_path = "maddpg_agent_8v"
-else:
-    checkpoint_path = "maddpg_agent_12v"
-
+# Save the trained agent
 agent.saveCheckpoint(checkpoint_path)
