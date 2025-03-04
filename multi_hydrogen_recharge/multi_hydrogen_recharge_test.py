@@ -11,8 +11,6 @@ num_vehicles = 5
 
 # ---------------------------------------------------------------------
 
-np.random.seed(seed)
-
 # Load the built algorithm
 if num_vehicles == 5:
     checkpoint_path = "maddpg_agent_5v"
@@ -31,7 +29,7 @@ num_steps_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define the parameters for testing the algorithm
-episodes = 10000
+episodes = 100
 max_steps = 20
 avg_after_episodes = 100
 
