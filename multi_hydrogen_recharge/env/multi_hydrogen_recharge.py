@@ -7,6 +7,12 @@ from gym import spaces
 import numpy as np
 from pettingzoo import ParallelEnv
 
+
+seed = 42
+
+random.seed(seed)
+np.random.seed(seed)
+
 # -----------------------------------------------------------------------
 # Constants variables of the environment
 # -----------------------------------------------------------------------	

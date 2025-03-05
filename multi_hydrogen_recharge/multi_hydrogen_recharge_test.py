@@ -12,12 +12,12 @@ num_vehicles = 5
 # ---------------------------------------------------------------------
 
 # Load the built algorithm
-if num_vehicles == 5:
+if num_vehicles == 3:
+    checkpoint_path = "maddpg_agent_3v"
+elif num_vehicles == 5:
     checkpoint_path = "maddpg_agent_5v"
-elif num_vehicles == 8:
-    checkpoint_path = "maddpg_agent_8v"
 else:
-    checkpoint_path = "maddpg_agent_12v"
+    checkpoint_path = "maddpg_agent_7v"
 
 agent = MADDPG.load(checkpoint_path)
 
@@ -29,7 +29,7 @@ num_steps_list = []
 env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 
 # Define the parameters for testing the algorithm
-episodes = 100
+episodes = 500
 max_steps = 20
 avg_after_episodes = 100
 

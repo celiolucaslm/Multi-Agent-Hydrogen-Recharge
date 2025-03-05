@@ -10,16 +10,16 @@ import os
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 5
+num_vehicles = 3
 
-if num_vehicles == 5:
-    checkpoint_path = "maddpg_agent_5v"
-elif num_vehicles == 8:
-    checkpoint_path = "maddpg_agent_8v"
-else:
-    checkpoint_path = "maddpg_agent_12v"
-
-agent = MADDPG.load(path=checkpoint_path)
+# if num_vehicles == 3:
+#     checkpoint_path = "maddpg_agent_3v"
+# elif num_vehicles == 5:
+#     checkpoint_path = "maddpg_agent_5v"
+# else:
+#     checkpoint_path = "maddpg_agent_7v"
+#
+# agent = MADDPG.load(path=checkpoint_path)
 
 # -----------------------------------------------------------------------
 
@@ -74,11 +74,11 @@ avg_after_episodes = 100
 
 # Set the checkpoint path based on the number of vehicles
 if num_vehicles == 5:
-    checkpoint_path = "maddpg_agent_5v"
+    checkpoint_path = "maddpg_agent_3v"
 elif num_vehicles == 8:
-    checkpoint_path = "maddpg_agent_8v"
+    checkpoint_path = "maddpg_agent_5v"
 else:
-    checkpoint_path = "maddpg_agent_12v"
+    checkpoint_path = "maddpg_agent_7v"
 
 start_time = time.time()
 
