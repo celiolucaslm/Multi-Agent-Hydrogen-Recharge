@@ -62,9 +62,12 @@ class MultiHydrogenRecharge(ParallelEnv):
             random.seed(seed)
             np.random.seed(seed)
 
+
+
+
         # Environment settings
         self.num_vehicles = num_vehicles
-        self.max_commands = num_vehicles * 4  # Define a maximum number of commands to receive
+        self.max_commands = num_vehicles * 5  # Define a maximum number of commands to receive to minimize the probability to have more than this
         self.num_commands = num_commands if num_commands is not None else np.random.poisson(lam=num_vehicles)
 
         # Defining the action space
@@ -210,6 +213,8 @@ class MultiHydrogenRecharge(ParallelEnv):
         return observations
 
     def step(self, actions):
+        print(self.num_commands)
+
         # Update vehicle weights according to action taken
         for i, v in enumerate(self.vehicles):
             v.weights = actions[i]
