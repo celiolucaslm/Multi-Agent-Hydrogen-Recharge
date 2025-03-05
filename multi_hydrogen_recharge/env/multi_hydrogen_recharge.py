@@ -213,8 +213,7 @@ class MultiHydrogenRecharge(ParallelEnv):
         return observations
 
     def step(self, actions):
-        print(self.num_commands)
-
+        
         # Update vehicle weights according to action taken
         for i, v in enumerate(self.vehicles):
             v.weights = actions[i]
