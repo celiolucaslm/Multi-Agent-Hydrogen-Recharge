@@ -73,9 +73,9 @@ eps_decay = 0.995
 avg_after_episodes = 100
 
 # Set the checkpoint path based on the number of vehicles
-if num_vehicles == 5:
+if num_vehicles == 3:
     checkpoint_path = "maddpg_agent_3v"
-elif num_vehicles == 8:
+elif num_vehicles == 5:
     checkpoint_path = "maddpg_agent_5v"
 else:
     checkpoint_path = "maddpg_agent_7v"
