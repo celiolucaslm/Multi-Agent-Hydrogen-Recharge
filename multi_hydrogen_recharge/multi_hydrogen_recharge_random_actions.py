@@ -5,7 +5,7 @@ import pandas as pd
 
 # Set the default parameters for running the environment simulation
 seed = 30
-num_vehicles = 3
+num_vehicles = 5
 
 # --------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ env = MultiHydrogenRecharge(num_vehicles=num_vehicles, seed=seed)
 # Defines the test parameters for the environment's random actions
 num_episodes = 5000
 max_steps = 20
-avg_after_episodes = 100
+avg_after_episodes = 500
 
 # Stores the rewards
 reward_list = []
@@ -33,7 +33,7 @@ for episode in range(num_episodes):
       
     # Vehicles take random action
     #actions = np.random.rand(env.num_vehicles, 4) # Random actions
-    actions = np.array([[1., 0., 0., 1.] for _ in range(env.num_vehicles)])
+    actions = np.array([[1., 0., 0., 1.] for _ in range(env.num_vehicles)]) # Only urgency and price policy
 
     # Execute the action and take the next observation, reward and done (terminal state)
     observation, rewards, done = env.step(actions)
@@ -87,7 +87,7 @@ ax1.fill_between(range(avg_after_episodes, total_episodes + 1, avg_after_episode
                  color=color, alpha=0.2)
 ax1.tick_params(axis='y', labelcolor=color)
 
-plt.title("Moyenne des Récompenses au Cours des Épisodes pour Actions Aléatoires")
+plt.title("Moyenne des Récompenses au Cours des Épisodes pour Politique de Seulement Urgence et Prix")
 fig.tight_layout()
 plt.show()
 
