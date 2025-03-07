@@ -32,7 +32,7 @@ MAX_PRICE = 500
 MIN_DURATION = 5
 MAX_DURATION = 20
 
-URGENCY = np.random.choice([0, 1])
+URGENCY = 0
 
 BAD_TRAFFIC_CONDITION = False
 START_OF_AREA_WITH_BAD_TRAFFIC = 40
@@ -61,9 +61,6 @@ class MultiHydrogenRecharge(ParallelEnv):
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
-
-
-
 
         # Environment settings
         self.num_vehicles = num_vehicles
@@ -99,7 +96,7 @@ class MultiHydrogenRecharge(ParallelEnv):
             np.random.choice(np.arange(MIN_PRICE, MAX_PRICE, 5)), 
             np.random.choice(np.arange(MIN_DURATION, MAX_DURATION, 1)), 
             int(BAD_TRAFFIC_CONDITION),
-            URGENCY
+            urgency=np.random.choice([0, 1])
         ) for j in range(self.num_commands)]
 
     # Define the condition of traffic for a vehilce or command based on the position
