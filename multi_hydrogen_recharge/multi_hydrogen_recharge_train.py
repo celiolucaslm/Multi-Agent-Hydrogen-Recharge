@@ -10,7 +10,7 @@ import os
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 5
+num_vehicles = 7
  
 # if num_vehicles == 3:
 #     checkpoint_path = "maddpg_agent_3v"
