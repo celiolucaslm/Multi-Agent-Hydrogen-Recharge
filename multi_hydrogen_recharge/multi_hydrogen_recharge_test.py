@@ -7,7 +7,7 @@ from env.multi_hydrogen_recharge import MultiHydrogenRecharge
 
 # Set the default parameters for running the environment simulation
 seed = 30
-num_vehicles = 3
+num_vehicles = 7
 
 # ---------------------------------------------------------------------
 
