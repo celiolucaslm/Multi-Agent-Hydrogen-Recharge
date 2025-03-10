@@ -5,7 +5,7 @@ import pandas as pd
 
 # Set the default parameters for running the environment simulation
 seed = 30
-num_vehicles = 5
+num_vehicles = 3
 
 # --------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ for episode in range(num_episodes):
       
     # Vehicles take random action
     #actions = np.random.rand(env.num_vehicles, 4) # Random actions
-    actions = np.array([[1., 0., 0., 1.] for _ in range(env.num_vehicles)]) # Only urgency and price policy
+    actions = np.array([[1., 0., 0., 0.] for _ in range(env.num_vehicles)]) # Only urgency and price policy
 
     # Execute the action and take the next observation, reward and done (terminal state)
     observation, rewards, done = env.step(actions)

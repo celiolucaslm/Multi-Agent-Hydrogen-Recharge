@@ -10,16 +10,16 @@ import os
 
 # Set the default parameters for running the environment simulation
 seed = 42
-num_vehicles = 7
+num_vehicles = 3
  
-# if num_vehicles == 3:
-#     checkpoint_path = "maddpg_agent_3v"
-# elif num_vehicles == 5:
-#     checkpoint_path = "maddpg_agent_5v"
-# else:
-#     checkpoint_path = "maddpg_agent_7v"
+if num_vehicles == 3:
+    checkpoint_path = "maddpg_agent_3v"
+elif num_vehicles == 5:
+    checkpoint_path = "maddpg_agent_5v"
+else:
+    checkpoint_path = "maddpg_agent_7v"
 
-# agent = MADDPG.load(path=checkpoint_path)
+agent = MADDPG.load(path=checkpoint_path)
 
 # -----------------------------------------------------------------------
 

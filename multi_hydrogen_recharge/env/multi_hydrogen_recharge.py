@@ -32,8 +32,6 @@ MAX_PRICE = 500
 MIN_DURATION = 5
 MAX_DURATION = 20
 
-URGENCY = 0
-
 BAD_TRAFFIC_CONDITION = False
 START_OF_AREA_WITH_BAD_TRAFFIC = 40
 END_OF_AREA_WITH_BAD_TRAFFIC = 60
@@ -288,6 +286,8 @@ class MultiHydrogenRecharge(ParallelEnv):
                 else:
                         rewards.append(0)  # Zero reward if the vehicle does not have a command assigned
 
+        done = {i: True if v.hydrogen <= 0 or v.remaining_working_time <= 0 else False for i, v in enumerate(self.vehicles)}  # If a vehicle runs out of hydrogen or its remaining working time is over, the episode ends for it
+
         # Set the number of commands for the next step
         self.num_commands = np.random.poisson(lam=self.num_vehicles)
 
@@ -301,8 +301,6 @@ class MultiHydrogenRecharge(ParallelEnv):
         # Update the weights of the commands
         for c in self.commands:
             c.weights = np.random.rand(4)
-
-        done = {i: True if v.hydrogen <= 0 or v.remaining_working_time <= 0 else False for i, v in enumerate(self.vehicles)}  # If a vehicle runs out of hydrogen or its remaining working time is over, the episode ends for it
 
         # Reset preferences (vehicles and commands)
         for v in self.vehicles:

@@ -8,7 +8,7 @@ state = env.reset()
 for i in range(10):
     print("Step: ", i)
     #actions = np.random.rand(env.num_vehicles, 4)
-    actions = np.array([[0., 0., 0., 1.] for _ in range(env.num_vehicles)])
+    actions = np.array([[1., 0., 0., 1.] for _ in range(env.num_vehicles)])
     observation, rewards, done = env.step(actions)
 
-    print("Rewards: ", rewards)
+    print("Observation: ", observation)
